@@ -3,15 +3,6 @@ import yaml
 from pycelonis.pql import PQL, PQLColumn, PQLFilter, OrderByColumn
 from pycelonis_core.utils.errors import PyCelonisNotFoundError
 
-DATA_MODEL = None
-MODEL_NAME = None
-DATA_POOL = None
-POOL_NAME = None
-CASE_COLUMN = None
-ACT_COLUMN = None
-TIME_COLUMN = None
-RES_COLUMN = None
-
 
 def get_connection():
     """
@@ -47,34 +38,26 @@ def get_celonis_info(celonis):
     except FileNotFoundError:
         return "The configuration file is empty."
 
-    global POOL_NAME
-    POOL_NAME = config["data_pool"]
+    pool_name = config["data_pool"]
 
-    global MODEL_NAME
-    MODEL_NAME = config["data_model"]
+    model_name = config["data_model"]
 
-    global CASE_COLUMN, ACT_COLUMN, RES_COLUMN, TIME_COLUMN
-    CASE_COLUMN, ACT_COLUMN, TIME_COLUMN, RES_COLUMN = config["case_column_name"], config["activity_column_name"], \
+    case_column_name, act_column_name, time_column_name, res_column_name = config["case_column_name"], config[
+        "activity_column_name"], \
         config["timestamp_column_name"], config["resource_column_name"]
 
     try:
-        data_pool = celonis.data_integration.get_data_pools().find(POOL_NAME)
+        data_pool = celonis.data_integration.get_data_pools().find(pool_name)
 
     except PyCelonisNotFoundError:
-        return f"Data pool: {POOL_NAME} does not exist."
-
-    global DATA_POOL
-    DATA_POOL = data_pool
+        return f"Data pool: {pool_name} does not exist."
 
     try:
-        data_model = data_pool.get_data_models().find(MODEL_NAME)
+        data_model = data_pool.get_data_models().find(model_name)
     except PyCelonisNotFoundError:
-        return f"Data model: {MODEL_NAME} does not exist in data pool {POOL_NAME}."
+        return f"Data model: {model_name} does not exist in data pool {pool_name}."
 
-    global DATA_MODEL
-    DATA_MODEL = data_model
-
-    return data_pool, data_model
+    return data_pool, data_model, pool_name, model_name, case_column_name, act_column_name, time_column_name, res_column_name
 
 
 def create_pool_and_model(celonis, pool_name, model_name):
@@ -90,18 +73,17 @@ def create_pool_and_model(celonis, pool_name, model_name):
     return data_pool, data_model
 
 
-def check_invalid_table_in_celonis(celonis, table):
+def check_invalid_table_in_celonis(data_model, table):
     """
     Check if the given table not in the data pool/model
     :param celonis: the connection
     :param table: table name
     :return: Return False if the table exists (valid table) otherwise retunr the error message
     """
-    get_celonis_info(celonis)
     try:
-        DATA_MODEL.get_tables().find(table)
+        data_model.get_tables().find(table)
     except PyCelonisNotFoundError:
-        return f"Table: {table} does not exist in data model {MODEL_NAME}"
+        return f"Table: \"{table}\" does not exist in data model"
 
     return False
 
@@ -132,4 +114,3 @@ def execute_PQL_query(data_model, columns=None, filters=None, order_by_columns=N
 
     res_df = data_model.export_data_frame(query)
     return res_df
-
