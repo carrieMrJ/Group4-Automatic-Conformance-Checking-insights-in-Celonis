@@ -18,3 +18,29 @@ def get_execution_time_per_res_per_act(data_mode, table_name, case_column, activ
     return res
 
 
+def get_unique_activity(df, act_column_name):
+    return df[act_column_name].unique()
+
+
+def get_unique_resource(df, res_column_name):
+    return df[res_column_name].unique()
+
+
+def get_res_act_relation(df, activities):
+    res_dict = {}
+    for a in activities:
+        g1 = df.groupby(["activity"]).get_group(a)
+        keys = list(g1.groupby(["resource"]).groups.keys())
+        res_dict[a] = keys
+    return res_dict
+
+
+def get_target_activity_with_start_end_timestamp(data_mode, table_name, case_column, activity_column, resource_column,
+                                                 timestamp_column):
+    columns = [PQLColumn(name="case_id", query=f'TARGET("{table_name}"."{case_column}")'),
+               PQLColumn(name="activity", query=f'TARGET("{table_name}"."{activity_column}")'),
+               PQLColumn(name="resource", query=f'TARGET("{table_name}"."{resource_column}")'),
+               PQLColumn(name="start_at", query=f'SOURCE("{table_name}"."{timestamp_column}")'),
+               PQLColumn(name="end_at", query=f'TARGET("{table_name}"."{timestamp_column}")')]
+    res = execute_PQL_query(data_mode, columns)
+    return res
