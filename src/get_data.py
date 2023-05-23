@@ -37,9 +37,9 @@ def get_res_act_relation(df, activities):
 
 def get_target_activity_with_start_end_timestamp(data_mode, table_name, case_column, activity_column, resource_column,
                                                  timestamp_column):
-    columns = [PQLColumn(name="case_id", query=f'TARGET("{table_name}"."{case_column}")'),
-               PQLColumn(name="activity", query=f'TARGET("{table_name}"."{activity_column}")'),
-               PQLColumn(name="resource", query=f'TARGET("{table_name}"."{resource_column}")'),
+    columns = [PQLColumn(name="case_id", query=f'SOURCE("{table_name}"."{case_column}")'),
+               PQLColumn(name="activity", query=f'SOURCE("{table_name}"."{activity_column}")'),
+               PQLColumn(name="resource", query=f'SOURCE("{table_name}"."{resource_column}")'),
                PQLColumn(name="start_at", query=f'SOURCE("{table_name}"."{timestamp_column}")'),
                PQLColumn(name="end_at", query=f'TARGET("{table_name}"."{timestamp_column}")')]
     res = execute_PQL_query(data_mode, columns)
