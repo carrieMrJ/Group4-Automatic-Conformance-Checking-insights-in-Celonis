@@ -42,9 +42,9 @@ def get_celonis_info(celonis):
 
     model_name = config["data_model"]
 
-    case_column_name, act_column_name, time_column_name, res_column_name = config["case_column_name"], config[
+    case_column_name, act_column_name, time_column_name, res_column_name, lifecycle_column_name = config["case_column_name"], config[
         "activity_column_name"], \
-        config["timestamp_column_name"], config["resource_column_name"]
+        config["timestamp_column_name"], config["resource_column_name"], config["lifecycle_column_name"]
 
     try:
         data_pool = celonis.data_integration.get_data_pools().find(pool_name)
@@ -57,7 +57,7 @@ def get_celonis_info(celonis):
     except PyCelonisNotFoundError:
         return f"Data model: {model_name} does not exist in data pool {pool_name}."
 
-    return data_pool, data_model, pool_name, model_name, case_column_name, act_column_name, time_column_name, res_column_name
+    return data_pool, data_model, pool_name, model_name, case_column_name, act_column_name, time_column_name, res_column_name, lifecycle_column_name
 
 
 def create_pool_and_model(celonis, pool_name, model_name):
