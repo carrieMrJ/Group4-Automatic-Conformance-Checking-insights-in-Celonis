@@ -2,6 +2,7 @@ case_column_name: case:concept:name
 activity_column_name: concept:name
 timestamp_column_name: time:timestamp
 resource_column_name: org:resource
+lifecycle_column_name: lifecycle:transition
 data_model: Automatic Conformance Checking Model
 data_pool: Automatic Conformance Checking Pool
 data_job:  Automatic Conformance Checking Job
