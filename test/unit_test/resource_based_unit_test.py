@@ -4,7 +4,7 @@ from src.get_data import get_unique_activity, get_unique_resource
 from src.resource_based_analysis import batch_identification
 
 
-class FunctionTestCase(unittest.TestCase):
+class ResourceBasedTestCase(unittest.TestCase):
     def test_unique_activity_resource(self):
         example = pd.DataFrame({
             "case_id": [1, 2, 3, 4, 5, 6, 7, 8],
