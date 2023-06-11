@@ -1,4 +1,4 @@
-from pycelonis.pql import PQLColumn, AVG, MIN, MAX, MEDIAN, VAR, PQLFilter
+from pycelonis.pql import PQLColumn, PQLFilter
 
 from src.celonis_data_integration import execute_PQL_query, get_connection, check_invalid_table_in_celonis, \
     get_celonis_info
