@@ -1,7 +1,7 @@
 from collections import defaultdict
 import pandas as pd
 from flask import render_template, Flask, Blueprint
-
+import warnings
 from src.get_data import get_res_act_relation
 
 resource_based_analysis_app = Blueprint('resource_based_analysis_app', __name__)
@@ -41,6 +41,8 @@ def batch_identification(df, activities):
     :param activities: list of all kinds of activities in df
     :return: batches
     """
+
+    warnings.filterwarnings('ignore')
     res_act_dict = get_res_act_relation(df, activities)
     batches = defaultdict(dict)
     group_res_act = df.groupby(["resource", "activity"])
