@@ -1,9 +1,6 @@
 import unittest
 import pandas as pd
-from src.get_data import get_unique_activity, get_unique_resource, get_execution_time_per_res_per_act, \
-    get_target_activity_with_start_end_timestamp
-from src.celonis_data_integration import get_connection, get_celonis_info, check_invalid_table_in_celonis
-import numpy as np
+from src.get_data import get_unique_activity, get_unique_resource
 from src.resource_based_analysis import batch_identification
 
 
