@@ -1,4 +1,4 @@
-from pycelonis.pql import PQLColumn
+from pycelonis.pql import PQLColumn,AVG,MIN,MAX,MEDIAN,VAR
 
 from src.celonis_data_integration import execute_PQL_query, get_connection, check_invalid_table_in_celonis, \
     get_celonis_info
@@ -94,3 +94,22 @@ def get_task_duration_time_distance(data_model, table_name, case_column, activit
     res_time_distance = res_time_distance[res_time_distance["start_life"] != "start"]
 
     return res_task_duration, res_time_distance
+
+def get_task_duration_aggregation(res_task_duration, res_time_distance):
+    #aggreagation for res_task_duration
+
+    avg_task_duration= AVG ( res_task_duration.'time_distance(min)')
+    min_task_duration= MIN (res_task_duration.'time_distance(min)')
+    max_trace_duration= MAX ( res_task_duration.'time_distance(min)')
+    median_task_duration= MEDIAN ( res_task_duration.'time_distance(min)')
+    var_task_duration= VAR ( res_task_duration.'time_distance(min)')
+
+    #aggreagation for res_time_duration
+    
+    avg_time_duration= AVG ( res_time_distance.'time_distance(min)')
+    min_time_duration= MIN (res_time_distance.'time_distance(min)'))
+    max_time_duration= MAX (res_time_distance.'time_distance(min)')
+    median_time_duration= MEDIAN (res_time_distance.'time_distance(min)'))
+    var_time_duration= VAR (res_time_distance.'time_distance(min)')
+                
+    return avg_task_duration, min_task_duration, max_trace_duration, median_task_duration, var_task_duration,avg_time_duration,min_time_duration,max_time_duration,median_time_duration,var_time_duration
