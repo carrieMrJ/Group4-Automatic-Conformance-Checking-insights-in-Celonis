@@ -190,8 +190,20 @@ def trace_cluster(data_model, table_name, case_column, activity_column, resource
               ]
 
     res = execute_PQL_query(data_model, columns, distinct=True)
+
+    # Group by 'activity_trace', then aggregate 'case_id' and count
+    new_df = res.groupby('activity_trace').agg({'case_id': list}).reset_index()
+
+    # Create a new column, counting the number of 'case_id' for each 'activity_trace'
+    new_df['case_count'] = new_df['case_id'].apply(len)
+
+    # Rename column names
+    new_df.columns = ['activity_trace', 'case_id_list', 'case_count']
+
+    # Sort by the values in the 'case_count' column in descending order
+    new_df = new_df.sort_values('case_count', ascending=False).reset_index(drop=True)
     
-    return res 
+    return new_df
 
 
 
@@ -206,4 +218,4 @@ def split_df(df, p=0.2):
     rest = [[trace] for trace in df['activity_trace'].iloc[cutoff:]]
     
     return first_p, rest
->>>>>>> a70dedc78631447f7ab32bcd4b9eb50781965379
+
