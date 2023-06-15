@@ -77,4 +77,34 @@ def mapping_traces(data_model, table_name, activity_column, trace_list):
     return traces, mapping, list(mapping.values())
 
 
+def reverse_mapping(encoded_traces, mapping, values):
+    # Create a reverse mapping from the mapping dictionary
+    reverse_mapping = {v: k for k, v in mapping.items()}
+
+    # Check if all values are in reverse mapping keys
+    if set(values).issubset(set(reverse_mapping.keys())):
+        # Initialize an empty list for the original traces
+        original_traces = []
+
+        # Iterate over each encoded trace
+        for trace in encoded_traces:
+            # Initialize an empty string to store the original trace
+            original_trace = ""
+
+            # Iterate over each character (activity) in the trace
+            for act in trace:
+                # Append the original activity to the original_trace string, followed by ", "
+                original_trace += reverse_mapping[act] + ", "
+
+            # Append the original trace to the list of original traces
+            # Remove the trailing comma and space
+            original_traces.append(original_trace.rstrip(", "))
+
+        # Return the list of original traces
+        return original_traces
+
+    else:
+        return "The provided mapping values do not match the mapping dictionary."
+
+
 
