@@ -66,7 +66,7 @@ def mapping_traces(data_model, table_name, activity_column, trace_list):
     mapping, act_l = map_activities(data_model, table_name, activity_column)
     print(mapping)
     # col2 = [PQLColumn(name="activity_trace", query=f'VARIANT("{table_name}"."{activity_column}")')]
-    # trace_list = execute_PQL_query(data_model, col2, distinct=True)["activity_trace"]
+    # main_trace_list = execute_PQL_query(data_model, col2, distinct=True)["activity_trace"]
     traces = []
     for t in trace_list:
         tmp = t.split(", ")

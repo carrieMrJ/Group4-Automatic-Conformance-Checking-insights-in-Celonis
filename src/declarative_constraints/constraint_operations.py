@@ -64,11 +64,11 @@ def constraints_generation(input_symbols, constraint_names):
     return valid
 
 
-def event_log_constraint_extraction(trace_list, constraint_list, symbols):
+def event_log_constraint_extraction(main_trace_list, constraint_list, symbols):
     """
     Find out the diagnostics
     :param symbols:
-    :param trace_list: list of string
+    :param main_trace_list: list of string
     :param constraint_list: dictionary key:constraint name value:constraint parameter
     :return:
     """
@@ -89,24 +89,18 @@ def event_log_constraint_extraction(trace_list, constraint_list, symbols):
                     regex)
         else:
             for item in value:
-                # print(item)
                 regex = template(symbols, item)
-                # print(f"regex: {regex}")
-                # try:
                 print(f"loading DFA for {key}:{item} {regex}")
                 dfa4constraints[f"{key}:{item}"] = regex_dfa(regex)
-                # except automata.base.exceptions.LexerError:
-                #     return f'{regex}: [{key}:{item}]'
-    # print(dfa4constraints)
-    for trace in trace_list:
+    res = defaultdict(list)
+    for trace in main_trace_list:
         print(trace)
         for key, dfa in dfa4constraints.items():
-            print(key)
+            constraint_name = key.split("(")[0]
             flag = dfa.accepts_input(trace)
-            # print(f"flag:{flag}")
             if flag:
+                res[f"{constraint_name}"].append(constraint_name[1])
                 valid_constraints[key].append(trace)
-                # print(key)
 
     return valid_constraints
 
