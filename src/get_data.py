@@ -45,30 +45,6 @@ def get_target_activity_with_start_end_timestamp(data_mode, table_name, case_col
     res = execute_PQL_query(data_mode, columns)
     return res
 
-<<<<<<< HEAD
-def trace_cluster(data_model, table_name, case_column, activity_column, resource_column, lifecycle_column):
-
-
-    columns = [PQLColumn(name="case_id", query=f'("{table_name}"."{case_column}")'),
-               PQLColumn(name="activity_trace", query=f'VARIANT("{table_name}"."{activity_column}")'),
-               PQLColumn(name="Cluster", query=f'CLUSTER_VARIANTS ( VARIANT ( "{table_name}"."{activity_column}" ) , 2 , 2 )'),
-              ]
-
-    res = execute_PQL_query(data_model, columns, distinct=True)
-    return res 
-
-def split_df(df, p=0.2):
-    # Calculate the row for the cutoff
-    cutoff = int(len(df) * p)
-    
-    # Get the 'activity_trace' of the first p percent of rows
-    first_p = [[trace] for trace in df['activity_trace'].iloc[:cutoff]]
-    
-    # Get the 'activity_trace' of the rest of the rows
-    rest = [[trace] for trace in df['activity_trace'].iloc[cutoff:]]
-    
-    return first_p, rest
-=======
 
 def get_task_duration_time_distance(data_pool, data_model, table_name, case_column, activity_column, time_column,
                                     lifecycle_column):
