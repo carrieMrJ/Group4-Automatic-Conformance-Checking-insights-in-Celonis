@@ -6,12 +6,13 @@ Run your docker
 `docker-compose up`  
 After doing this you will get all the necessary packages installed
 
-## File Structure
+## Project Structure
 Home
 
 |--src                              : Source-Code folder  
 |--|--resource_based                : Folder including all resource-based analysis functions  
 |--|--temporal_profile              : Folder including all temporal-based analysis functions  
+|--|--declarative_constraints       : Folder including all declarative analysis functions  
 |--test                             : Test folder  
 |--|--test_input_data               : Folder including some test event logs  
 |--|--|--receipt.csv  
