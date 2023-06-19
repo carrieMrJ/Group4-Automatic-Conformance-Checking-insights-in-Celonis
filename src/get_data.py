@@ -44,3 +44,21 @@ def get_target_activity_with_start_end_timestamp(data_mode, table_name, case_col
                PQLColumn(name="end_at", query=f'TARGET("{table_name}"."{timestamp_column}")')]
     res = execute_PQL_query(data_mode, columns)
     return res
+
+def get_data_for_anomaly_detection(data_mode, table_name, case_column, activity_column, resource_column, timestamp_column):
+    columns = [PQLColumn(name="Result by Reviewer A", query=f'"{table_name}"."Result by Reviewer A"'),
+                PQLColumn(name="Result by Reviewer B", query=f'"{table_name}"."Result by Reviewer B"'),
+                PQLColumn(name="Result by Reviewer C", query=f'"{table_name}"."Result by Reviewer C"'),
+                PQLColumn(name="Result by Reviewer X", query=f'"{table_name}"."Result by Reviewer X"'),
+                PQLColumn(name="accepts", query=f'"{table_name}"."accepts"'),
+               PQLColumn(name="case:concept:name", query=f'"{table_name}"."case:concept:name"'),
+               PQLColumn(name="case:description", query=f'"{table_name}"."case:description"'),
+               PQLColumn(name="concept:name", query=f'"{table_name}"."concept:name"'),
+               PQLColumn(name="lifecycle:transition", query=f'"{table_name}"."lifecycle:transition"'),
+               PQLColumn(name="org:resource", query=f'"{table_name}"."org:resource"'),
+               PQLColumn(name="rejects", query=f'"{table_name}"."rejects"'),
+               PQLColumn(name="time:timestamp", query=f'"{table_name}"."time:timestamp"')]
+
+    res=execute_PQL_query(data_mode, columns)
+
+    return res
