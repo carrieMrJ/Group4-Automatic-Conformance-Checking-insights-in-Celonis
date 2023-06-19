@@ -56,7 +56,7 @@ def preprocessing_review(df):
 
     return df_new
 
-
+# df with preprocessed review data
 df_pre_review=preprocessing_review(df_review)
 
 
@@ -102,5 +102,5 @@ def preprocessing_receipt(df_receipt):
     df_ohe.head()
     return df_ohe
 
-
+# df with preprocessed receipt data
 df_pre_receipt=preprocessing_receipt(df_receipt)
