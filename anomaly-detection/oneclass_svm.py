@@ -2,7 +2,7 @@ from dimensionality_reduction import feature_table_reduced_receipt,feature_table
 from preprocessing_ohe import df_review,df_receipt
 
 
-from sklearn.ensemble import IsolationForest
+from sklearn.svm import OneClassSVM
 import matplotlib.pyplot as plt
 import pandas as pd
 
