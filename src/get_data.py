@@ -79,3 +79,4 @@ def get_data_for_anomaly_detection_receipt(data_mode, table_name, case_column, a
     res=execute_PQL_query(data_mode, columns)
 
     return res
+

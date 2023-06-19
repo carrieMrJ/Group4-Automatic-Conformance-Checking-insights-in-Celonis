@@ -8,7 +8,12 @@ import pandas as pd
 
 #function to calculate anomalies using oneclassSVM and ranking these anomalies based on their score
 def oneclassSVM(feature_table_reduced,event_log):
-
+    """
+    Applies the oneclasssvm algorithm to the features and gives out the anomalies as well as ranks those anomalies based on their anomaly score.
+    :param df: dataframe which has reduced dimensions from dimensionality_reduction
+    :return: a plot showing the anomalies in the data and the ranked anomalies with their caseid, acitivity and anomaly score.  
+ 
+    """
     X_pca=feature_table_reduced
     # Fit a One-Class SVM model to the reduced data
     svm = OneClassSVM(kernel='rbf',degree=3,gamma='scale',nu=0.05)

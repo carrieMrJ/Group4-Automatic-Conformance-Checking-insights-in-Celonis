@@ -12,6 +12,7 @@ from sklearn.compose import make_column_selector as selector
 from sklearn.compose import make_column_transformer 
 from sklearn.compose import ColumnTransformer
 
+
 df_review=get_data_for_anomaly_detection_review(data_mode, table_name, case_column, activity_column, resource_column, timestamp_column)
 
 df_receipt=get_data_for_anomaly_detection_receipt(data_mode, table_name, case_column, activity_column, resource_column, timestamp_column)
@@ -21,6 +22,13 @@ df_receipt=get_data_for_anomaly_detection_receipt(data_mode, table_name, case_co
 
 #function to preprocess review data along with ohe
 def preprocessing_review(df):
+    """
+    Preprocessing the review data along with one hot encoding so it can be used in algorithms to find anomalies.
+    :param df: dataframe with features
+    :return: a new dataframe which has all numerical features 
+ 
+    """
+ 
     df_new=df
     df_new['accepts'] = df_new['accepts'].fillna(0)
     df_new['rejects'] = df_new['rejects'].fillna(0)
@@ -62,7 +70,12 @@ df_pre_review=preprocessing_review(df_review)
 
 #function to preprocess receipt data along with ohe
 def preprocessing_receipt(df_receipt):
-
+    """
+    Preprocessing the receipt data along with one hot encoding so it can be used in algorithms to find anomalies.
+    :param df: dataframe with features
+    :return: a new dataframe which has all numerical features 
+ 
+    """
     df_new=df_receipt
     df_new['case:concept:name'] = df_new['case:concept:name'].str.extract('(\d+)', expand=False).astype(int)
     pd.set_option('mode.chained_assignment', 'warn')

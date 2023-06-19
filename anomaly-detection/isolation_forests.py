@@ -8,6 +8,12 @@ import pandas as pd
 
 #function to calculate anomalies using isolation forests and ranking these anomalies based on their score
 def isolation_forests(feature_table_reduced,event_log):
+    """
+    Applies the isolation forest algorithm to the features and gives out the anomalies as well as ranks those anomalies based on their anomaly score.
+    :param df: dataframe which has reduced dimensions from dimensionality_reduction
+    :return: a plot showing the anomalies in the data and the ranked anomalies with their caseid, acitivity and anomaly score.  
+ 
+    """
 
     # Apply anomaly detection using Isolation Forest
     isolation_forest = IsolationForest(n_estimators=100,contamination=0.05,bootstrap=False)
