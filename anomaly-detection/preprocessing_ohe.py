@@ -3,7 +3,7 @@ from pycelonis.pql import PQLColumn
 from src.celonis_data_integration import execute_PQL_query, get_connection, check_invalid_table_in_celonis, \
     get_celonis_info
 
-from src.get_data.py import get_data_for_anomaly_detection_receipt,get_data_for_anomaly_detection_review
+from src.get_data import get_data_for_anomaly_detection_receipt,get_data_for_anomaly_detection_review
 
 
 import pandas as pd
