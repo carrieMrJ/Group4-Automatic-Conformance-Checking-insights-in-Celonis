@@ -1,4 +1,4 @@
-from constraint_operations import CONSTRAINT_LIBRARY
+from constraint_operations import CONSTRAINT_LIBRARY,regex_dfa
 
 
 
