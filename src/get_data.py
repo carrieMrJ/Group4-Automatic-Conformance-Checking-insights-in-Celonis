@@ -77,9 +77,10 @@ def get_task_duration_time_distance(data_pool, data_model, table_name, case_colu
             query=f'FILTER SOURCE("{table_name}"."{lifecycle_column}") = \'start\' AND TARGET("{table_name}"."{lifecycle_column}") = \'complete\';')
     ]
     res_task_duration = execute_PQL_query(data_model, columns_dur, filters=filter_dur)
-
-    data_pool.create_table(df=res_task_duration, table_name=f'{table_name}_task_duration', drop_if_exists=True)
-    data_model.add_table(name=f'{table_name}_task_duration', alias=f'{table_name}_task_duration')
+    if not res_task_duration:
+        data_pool.create_table(df=res_task_duration, table_name=f'{table_name}_task_duration', drop_if_exists=True)
+        data_model.add_table(name=f'{table_name}_task_duration', alias=f'{table_name}_task_duration')
+        data_model.reload()
 
     columns_dis = [PQLColumn(name="case_id", query=f'SOURCE("{table_name}"."{case_column}")'),
                    PQLColumn(name="start_activity", query=f'SOURCE("{table_name}"."{activity_column}")'),
@@ -95,10 +96,10 @@ def get_task_duration_time_distance(data_pool, data_model, table_name, case_colu
         PQLFilter(query=f'FILTER SOURCE("{table_name}"."{lifecycle_column}") != \'start\';')
     ]
     res_time_distance = execute_PQL_query(data_model, columns_dis, filters=filter_dis)
-    data_pool.create_table(df=res_time_distance, table_name=f'{table_name}_time_distance', drop_if_exists=True)
-    data_model.add_table(name=f'{table_name}_time_distance', alias=f'{table_name}_time_distance')
-
-    data_model.reload()
+    if not res_task_duration:
+        data_pool.create_table(df=res_time_distance, table_name=f'{table_name}_time_distance', drop_if_exists=True)
+        data_model.add_table(name=f'{table_name}_time_distance', alias=f'{table_name}_time_distance')
+        data_model.reload()
 
     return res_task_duration, res_time_distance
 
