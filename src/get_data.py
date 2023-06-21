@@ -78,7 +78,8 @@ def get_task_duration_time_distance(data_pool, data_model, table_name, case_colu
     ]
     res_task_duration = execute_PQL_query(data_model, columns_dur, filters=filter_dur)
     if not res_task_duration:
-        data_pool.create_table(df=res_task_duration, table_name=f'{table_name}_task_duration', drop_if_exists=True)
+        data_pool.create_table(df=res_task_duration, table_name=f'{table_name}_task_duration',
+                               drop_if_exists=True, force=True)
         data_model.add_table(name=f'{table_name}_task_duration', alias=f'{table_name}_task_duration')
         data_model.reload()
 
@@ -97,7 +98,8 @@ def get_task_duration_time_distance(data_pool, data_model, table_name, case_colu
     ]
     res_time_distance = execute_PQL_query(data_model, columns_dis, filters=filter_dis)
     if not res_task_duration:
-        data_pool.create_table(df=res_time_distance, table_name=f'{table_name}_time_distance', drop_if_exists=True)
+        data_pool.create_table(df=res_time_distance, table_name=f'{table_name}_time_distance',
+                               drop_if_exists=True, force=True)
         data_model.add_table(name=f'{table_name}_time_distance', alias=f'{table_name}_time_distance')
         data_model.reload()
 
