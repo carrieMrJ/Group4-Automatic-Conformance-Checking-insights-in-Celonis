@@ -104,8 +104,8 @@ def event_log_constraint_extraction(main_trace_list, constraint_list, symbols, c
             if flag:
                 res[f"{constraint_name}"].append(constraint_name[1])
                 valid_constraints[key].append(trace)
-
-    return valid_constraints
+    satisfied_constraints=list(valid_constraints.keys())
+    return satisfied_constraints
 
 
 # if __name__ == "__main__":
