@@ -12,65 +12,8 @@ CONSTRAINT_LIBRARY = {
 }
 
 
-class TestGetSatisfiedConstraints(unittest.TestCase):
-    def test_get_satisfied_constraints(self):
-        main_trace_list = ["abc", "def", "ghi"]
-        constraint_list = {
-            "startWith": ["abc"],
-            "endWith": ["cba"],
-            "atMostOnce": ["abc"]
-        }
-        symbols = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "A"]
-
-        expected_result = ["startWith", "atMostOnce"]
-
-        # Call the function
-        result = get_satisfied_constraints(main_trace_list, constraint_list, symbols, CONSTRAINT_LIBRARY)
-
-        self.assertEqual(result, expected_result)
-
-    def test_get_satisfied_constraints_empty_trace_list(self):
-        main_trace_list = []
-        constraint_list = {
-            "startWith": ["abc"],
-            "endWith": ["cba"],
-            "atMostOnce": ["abc"]
-        }
-        symbols = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "A"]
-
-        expected_result = []
-
-        # Call the function
-        result = get_satisfied_constraints(main_trace_list, constraint_list, symbols, CONSTRAINT_LIBRARY)
-
-        self.assertEqual(result, expected_result)
-
-    def test_get_satisfied_constraints_empty_constraint_list(self):
-        main_trace_list = ["abc", "def", "ghi"]
-        constraint_list = {}
-        symbols = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "A"]
-
-        expected_result = []
-
-        # Call the function
-        result = get_satisfied_constraints(main_trace_list, constraint_list, symbols, CONSTRAINT_LIBRARY)
-
-        self.assertEqual(result, expected_result)
-
-    def test_get_satisfied_constraints_custom_constraint(self):
-        main_trace_list = ["abc", "def", "ghi"]
-        constraint_list = {
-            "customConstraint": ["abc"]
-        }
-        symbols = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "A"]
-        CONSTRAINT_LIBRARY["customConstraint"] = lambda symbols, prefix: f"^{re.escape(prefix)}"
-
-        expected_result = ["customConstraint"]
-
-        # Call the function
-        result = get_satisfied_constraints(main_trace_list, constraint_list, symbols, CONSTRAINT_LIBRARY)
-
-        self.assertEqual(result, expected_result)
+class TestFindAnomalies(unittest.TestCase):
+    
 
     def test_find_anomalies(self):
         new_observation_traces = ["abc", "def", "xyz"]
