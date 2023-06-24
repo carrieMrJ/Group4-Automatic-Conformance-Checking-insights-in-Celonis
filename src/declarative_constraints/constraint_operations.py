@@ -1,17 +1,12 @@
+import re
 from collections import defaultdict
-
-import automata
-
-from src.celonis_data_integration import get_connection, get_celonis_info
 from src.declarative_constraints.templates import startWith, endWith, never, atMostOnce, atLeastOnce, precedence, \
     alternate_precedence, \
     chain_precedence, responded_existence, response, alternate_response, chain_response, succession, \
     alternate_succession, chain_succession, not_coexistence, not_chain_succession, not_succession
 from itertools import product
-from automata.fa.dfa import DFA
-from automata.fa.nfa import NFA
-
-from src.get_data import mapping_traces
+# from automata.fa.dfa import DFA
+# from automata.fa.nfa import NFA
 
 CONSTRAINT_LIBRARY = {"startWith": startWith, "endWith": endWith, "atMostOnce": atMostOnce, "atLeastOnce": atLeastOnce,
                       "never": never,
@@ -24,8 +19,8 @@ CONSTRAINT_LIBRARY = {"startWith": startWith, "endWith": endWith, "atMostOnce": 
                       "not_succession": not_succession, "not_chain_succession": not_chain_succession}
 
 
-def regex_dfa(regex):
-    return DFA.from_nfa(NFA.from_regex(regex))
+# def regex_dfa(regex):
+#     return DFA.from_nfa(NFA.from_regex(regex))
 
 
 # generate all possible constraint templates
@@ -74,7 +69,7 @@ def event_log_constraint_extraction(main_trace_list, constraint_list, symbols, c
     :return:
     """
     # list of dfa for constraints
-    dfa4constraints = {}
+    regex4constraints = {}
     # list of invalid constraints
     valid_constraints = defaultdict(list)
     try:
@@ -85,42 +80,32 @@ def event_log_constraint_extraction(main_trace_list, constraint_list, symbols, c
                 for item in value:
                     regex = template(symbols, item[0], item[1])
                     # print(f"regex: {regex}")
-                    print(f"loading DFA for {key}:{item} {regex}")
-                    dfa4constraints[f"{key}:{item}"] = regex_dfa(
-                        regex)
+                    print(f"loading regex for {key}:{item} {regex}")
+                    # dfa4constraints[f"{key}:{item}"] = regex_dfa(
+                    #     regex)
+                    regex4constraints[f"{key}:{item[0]},{item[1]}"] = regex
             else:
                 for item in value:
                     regex = template(symbols, item)
-                    print(f"loading DFA for {key}:{item} {regex}")
-                    dfa4constraints[f"{key}:{item}"] = regex_dfa(regex)
+                    print(f"loading regex for {key}:{item} {regex}")
+                    # dfa4constraints[f"{key}:{item}"] = regex_dfa(regex)
+                    regex4constraints[f"{key}:{item}"] = regex
     except KeyError:
         pass
-    res = defaultdict(list)
+    res = defaultdict(set)
+    res_ = {}
     for trace in main_trace_list:
         print(trace)
-        for key, dfa in dfa4constraints.items():
-            constraint_name = key.split("(")[0]
-            flag = dfa.accepts_input(trace)
-            if flag:
-                res[f"{constraint_name}"].append(constraint_name[1])
+        tmp = defaultdict(set)
+        for key, regex in regex4constraints.items():
+            constraint_name = key.split(":")
+            # flag = dfa.accepts_input(trace)
+            flag = re.fullmatch(regex, trace)
+            print(f"{regex}:{trace}={flag}")
+            if flag and flag.group() != '':
+                tmp[f"{constraint_name[0]}"].add(constraint_name[1])
+                res[f"{constraint_name[0]}"].add(constraint_name[1])
                 valid_constraints[key].append(trace)
-    satisfied_constraints=list(valid_constraints.keys())
-    return satisfied_constraints
-
-
-# if __name__ == "__main__":
-#     celonis = get_connection()
-#     print(celonis)
-#     # get the data pool and data model of our project
-#     # print(get_celonis_info(celonis))
-#     data_pool, data_model, pool_name, model_name, case_column_name, act_column_name, time_column_name, res_column_name, lifecycle_column_name = get_celonis_info(celonis=celonis)
-#     # check if one table is invalid (does not exist in our data pool/model)
-#     t, m, a = mapping_traces(data_model, "receipt", act_column_name)
-#     print(t)
-#     # print(a)
-#     constraints_list = constraints_generation(a, CONSTRAINT_LIBRARY)
-#     # constraints_list = {'C2': ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A']}
-#     # print(constraints_list)
-#     valid_constraint = event_log_constraint_extraction(t, constraints_list, a)
-#     print(valid_constraint)
-#     # print(startWith(a, 'a'))
+        res_[trace] = tmp
+    satisfied_constraints = list(valid_constraints.keys())
+    return res_
