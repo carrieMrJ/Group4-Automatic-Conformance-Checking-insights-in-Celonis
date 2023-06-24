@@ -1,5 +1,5 @@
 from pycelonis.pql import PQLColumn, PQLFilter
-
+import pycelonis
 from src.celonis_data_integration import execute_PQL_query, get_connection, check_invalid_table_in_celonis, \
     get_celonis_info
 
@@ -77,10 +77,15 @@ def get_task_duration_time_distance(data_pool, data_model, table_name, case_colu
             query=f'FILTER SOURCE("{table_name}"."{lifecycle_column}") = \'start\' AND TARGET("{table_name}"."{lifecycle_column}") = \'complete\';')
     ]
     res_task_duration = execute_PQL_query(data_model, columns_dur, filters=filter_dur)
-    if not res_task_duration:
-        data_pool.create_table(df=res_task_duration, table_name=f'{table_name}_task_duration',
-                               drop_if_exists=True, force=True)
-        data_model.add_table(name=f'{table_name}_task_duration', alias=f'{table_name}_task_duration')
+    if not res_task_duration.empty:
+        try:
+            data_pool_table = data_pool.get_tables().find(f'{table_name}_task_duration')
+        except PyCelonisNotFoundError:
+            data_pool.create_table(df=res_task_duration, table_name=f'{table_name}_task_duration',
+                                   drop_if_exists=False)
+            data_model.add_table(name=f'{table_name}_task_duration', alias=f'{table_name}_task_duration')
+        else:
+            data_pool_table.upsert(res_task_duration, keys=["case_id", "start_activity", "end_activity"])
         data_model.reload()
 
     columns_dis = [PQLColumn(name="case_id", query=f'SOURCE("{table_name}"."{case_column}")'),
@@ -97,10 +102,15 @@ def get_task_duration_time_distance(data_pool, data_model, table_name, case_colu
         PQLFilter(query=f'FILTER SOURCE("{table_name}"."{lifecycle_column}") != \'start\';')
     ]
     res_time_distance = execute_PQL_query(data_model, columns_dis, filters=filter_dis)
-    if not res_task_duration:
-        data_pool.create_table(df=res_time_distance, table_name=f'{table_name}_time_distance',
-                               drop_if_exists=True, force=True)
-        data_model.add_table(name=f'{table_name}_time_distance', alias=f'{table_name}_time_distance')
+    if not res_time_distance.empty:
+        try:
+            data_pool_table = data_pool.get_tables().find(f'{table_name}_time_distance')
+        except PyCelonisNotFoundError:
+            data_pool.create_table(df=res_task_duration, table_name=f'{table_name}_time_distance',
+                                   drop_if_exists=False)
+            data_model.add_table(name=f'{table_name}_task_duration', alias=f'{table_name}_time_distance')
+        else:
+            data_pool_table.upsert(res_time_distance, keys=["case_id", "start_activity", "end_activity"])
         data_model.reload()
 
     return res_task_duration, res_time_distance
