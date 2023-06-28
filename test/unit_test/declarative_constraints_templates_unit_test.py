@@ -3,17 +3,12 @@ import unittest
 from src.declarative_constraints.templates import startWith, endWith, never, atMostOnce, atLeastOnce, precedence, \
     alternate_precedence, \
     chain_precedence, responded_existence, response, alternate_response, chain_response, succession, \
-    alternate_succession, chain_succession, not_coexistence, not_chain_succession, not_succession, or_symbols
+    alternate_succession, chain_succession, not_coexistence, not_chain_succession, not_succession
 
 
 class DeclarativeTestMethods(unittest.TestCase):
 
     # unit tests for constraint templates
-    def test_or_symbols(self):
-        input_symbols = ['a', 'b', 'c', 'd']
-        self.assertEqual(or_symbols(input_symbols), '(a|b|c|d)')
-        self.assertEqual(or_symbols(input_symbols, used=['b', 'd']), '(a|c)')
-
     def test_startWith(self):
         input_symbols = ['a', 'b', 'c', 'd']
         self.assertEqual(startWith(input_symbols, 'a'), 'a(a|b|c|d)*')
