@@ -44,7 +44,7 @@ def get_z_score(task_duration, time_distance, temp_profile_dur, temp_profile_dis
         for index, line in task_duration.iterrows():
 
             x = line['task_duration(min)']
-            y = temp_profile_dur.loc[temp_profile_dur['Activity'] == line['Activity']]
+            y = temp_profile_dur.loc[temp_profile_dur['Activity'] == line['start_activity']]
             if not y.empty:
                 if z_score(x, y['mean_task_duration(min)'].values[0], y['stdev_task_duration(min)'].values[0]) > k:
                     anomaly_dur.append(line)
