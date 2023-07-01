@@ -236,8 +236,13 @@ def split_df(df, p=0.2):
 
     # Get the 'activity_trace' of the first p percent of rows
     first_p = [[trace] for trace in df['activity_trace'].iloc[:cutoff]]
-
+    first_p_id = []
+    for i in df['case_id_list'].iloc[:cutoff]:
+        first_p_id.extend(i)
     # Get the 'activity_trace' of the rest of the rows
     rest = [[trace] for trace in df['activity_trace'].iloc[cutoff:]]
+    rest_id = []
+    for i in df['activity_trace'].iloc[cutoff:]:
+        rest_id.extend(i)
 
-    return first_p, rest
+    return first_p, first_p_id, rest, rest_id
