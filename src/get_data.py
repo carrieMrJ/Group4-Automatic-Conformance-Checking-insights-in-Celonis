@@ -77,6 +77,7 @@ def get_task_duration_time_distance(data_pool, data_model, table_name, case_colu
             query=f'FILTER SOURCE("{table_name}"."{lifecycle_column}") = \'start\' AND TARGET("{table_name}"."{lifecycle_column}") = \'complete\';')
     ]
     res_task_duration = execute_PQL_query(data_model, columns_dur, filters=filter_dur)
+    
     if not res_task_duration.empty:
         try:
             data_pool_table = data_pool.get_tables().find(f'{table_name}_task_duration')
@@ -87,7 +88,26 @@ def get_task_duration_time_distance(data_pool, data_model, table_name, case_colu
         else:
             data_pool_table.upsert(res_task_duration, keys=["case_id", "start_activity", "end_activity"])
         data_model.reload()
-
+    else:
+        imsi_dur=[PQLColumn(name="case_id", query=f'"{table_name}"."{case_column}"'),
+                   PQLColumn(name="start_activity", query=f'"{table_name}"."{activity_column}"'),
+                   PQLColumn(name="end_activity", query=f'"{table_name}"."{activity_column}"'),
+                   PQLColumn(name="start_life", query=f'"{table_name}"."{lifecycle_column}"'),
+                   PQLColumn(name="end_life", query=f'"{table_name}"."{lifecycle_column}"'),
+                   PQLColumn(name="task_duration(min)",
+                             query=f'0')
+                   ]
+        res_task_duration=execute_PQL_query(data_model,imsi_dur)
+        try:
+            data_pool_table = data_pool.get_tables().find(f'{table_name}_task_duration')
+        except PyCelonisNotFoundError:
+            data_pool.create_table(df=res_task_duration, table_name=f'{table_name}_task_duration',
+                                   drop_if_exists=False)
+            data_model.add_table(name=f'{table_name}_task_duration', alias=f'{table_name}_task_duration')
+        else:
+            data_pool_table.upsert(res_task_duration, keys=["case_id", "start_activity", "end_activity"])
+        data_model.reload()
+        
     columns_dis = [PQLColumn(name="case_id", query=f'SOURCE("{table_name}"."{case_column}")'),
                    PQLColumn(name="start_activity", query=f'SOURCE("{table_name}"."{activity_column}")'),
                    PQLColumn(name="end_activity", query=f'TARGET("{table_name}"."{activity_column}")'),
