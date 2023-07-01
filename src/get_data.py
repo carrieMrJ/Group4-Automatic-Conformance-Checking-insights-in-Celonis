@@ -153,7 +153,8 @@ def calculate_temporal_profile(data_model, table_name, types, case_column, mains
                 ]
     res_dur = execute_PQL_query(data_model, cols_dur, filters=filters)
 
-    cols_dis = [PQLColumn(name="Activity", query=f'"{table_name}_time_distance"."start_activity"'),
+    cols_dis = [PQLColumn(name="Start_activity", query=f'"{table_name}_time_distance"."start_activity"'),
+                PQLColumn(name="End_activity", query=f'"{table_name}_time_distance"."end_activity"'),
                 PQLColumn(name="max_time_distance(min)",
                           query=f'MAX("{table_name}_time_distance"."time_distance(min)")'),
                 PQLColumn(name="min_time_distance(min)",
