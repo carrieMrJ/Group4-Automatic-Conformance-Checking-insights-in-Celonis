@@ -54,7 +54,8 @@ class TemporalProfileTestCase(unittest.TestCase):
         }
         df_tdur=pd.DataFrame(raw_tdur)
 
-        raw_tdis={'Activity':['AB'],
+        raw_tdis={'Start_activity':['A'],
+                  'End_activity':['B'],
             'max_time_distance(min)':[500],
             'min_time_distance(min)':[0],
             'mean_time_distance(min)':[3],
