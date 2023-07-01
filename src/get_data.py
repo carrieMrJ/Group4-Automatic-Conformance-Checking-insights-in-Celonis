@@ -180,9 +180,9 @@ def calculate_temporal_profile_time_distance(data_model, table_name, types, case
         s += ")"
     print(s)
     if types == "mainstream":
-        filters = [PQLFilter(query=f'FILTER "{table_name}_task_duration"."{case_column}" IN {s};')]
+        filters = [PQLFilter(query=f'FILTER "{table_name}_time_distance"."{case_column}" IN {s};')]
     elif types == "new":
-        filters = [PQLFilter(query=f'FILTER "{table_name}_task_duration"."{case_column}" NOT IN {s};')]
+        filters = [PQLFilter(query=f'FILTER "{table_name}__time_distance"."{case_column}" NOT IN {s};')]
     else:
         filters = []
 
