@@ -2,6 +2,8 @@ from pycelonis.pql import PQLColumn, PQLFilter
 import pycelonis
 from src.celonis_data_integration import execute_PQL_query, get_connection, check_invalid_table_in_celonis, \
     get_celonis_info
+from pycelonis_core.utils.errors import PyCelonisNotFoundError
+from pycelonis.errors import PyCelonisDataExportFailedError
 
 
 def get_execution_time_per_res_per_act(data_mode, table_name, case_column, activity_column, resource_column,
@@ -116,22 +118,23 @@ def get_task_duration_time_distance(data_pool, data_model, table_name, case_colu
     return res_task_duration, res_time_distance
 
 
-def calculate_temporal_profile(data_model, table_name, types, case_column, mainstream_case_id=None):
+def calculate_temporal_profile_task_duration(data_model, table_name, types, case_column, mainstream_case_id=None):
     """
     Calculate the temporal profile for task duration and time distance
     :param case_column:
     :param mainstream_case_id:
     :param data_model:
-    :param table_name: 
+    :param table_name:
     :param types: ['overall', 'mainstream', 'new']
-    :return: 
+    :return:
     """
     s = "("
     if mainstream_case_id:
-        for id in mainstream_case_id:
-            s += f"\'{id}\',"
+        for idx in mainstream_case_id:
+            s += f"\'{idx}\',"
         s = s[:-1]
         s += ")"
+    print(s)
     if types == "mainstream":
         filters = [PQLFilter(query=f'FILTER "{table_name}_task_duration"."{case_column}" IN {s};')]
     elif types == "new":
@@ -151,9 +154,40 @@ def calculate_temporal_profile(data_model, table_name, types, case_column, mains
                 PQLColumn(name="var_task_duration(min)",
                           query=f'ROUND(VAR("{table_name}_task_duration"."task_duration(min)"), 2)'),
                 ]
-    res_dur = execute_PQL_query(data_model, cols_dur, filters=filters)
+    try:
+        res_dur = execute_PQL_query(data_model, cols_dur, filters=filters)
+    except PyCelonisDataExportFailedError:
+        return f"Task duration analysis is not available for {table_name}"
 
-    cols_dis = [PQLColumn(name="Activity", query=f'"{table_name}_time_distance"."start_activity"'),
+    return res_dur
+
+
+def calculate_temporal_profile_time_distance(data_model, table_name, types, case_column, mainstream_case_id=None):
+    """
+    Calculate the temporal profile for task duration and time distance
+    :param case_column:
+    :param mainstream_case_id:
+    :param data_model:
+    :param table_name:
+    :param types: ['overall', 'mainstream', 'new']
+    :return:
+    """
+    s = "("
+    if mainstream_case_id:
+        for idx in mainstream_case_id:
+            s += f"\'{idx}\',"
+        s = s[:-1]
+        s += ")"
+    print(s)
+    if types == "mainstream":
+        filters = [PQLFilter(query=f'FILTER "{table_name}_task_duration"."{case_column}" IN {s};')]
+    elif types == "new":
+        filters = [PQLFilter(query=f'FILTER "{table_name}_task_duration"."{case_column}" NOT IN {s};')]
+    else:
+        filters = []
+
+    cols_dis = [PQLColumn(name="Start_Activity", query=f'"{table_name}_time_distance"."start_activity"'),
+                PQLColumn(name="End_Activity", query=f'"{table_name}_time_distance"."end_activity"'),
                 PQLColumn(name="max_time_distance(min)",
                           query=f'MAX("{table_name}_time_distance"."time_distance(min)")'),
                 PQLColumn(name="min_time_distance(min)",
@@ -165,18 +199,19 @@ def calculate_temporal_profile(data_model, table_name, types, case_column, mains
                 PQLColumn(name="var_time_distance(min)",
                           query=f'ROUND(VAR("{table_name}_time_distance"."time_distance(min)"), 2)'),
                 ]
-    res_dis = execute_PQL_query(data_model, cols_dis, filters=filters)
-    return res_dur, res_dis
-
+    try:
+        res_dis = execute_PQL_query(data_model, cols_dis, filters=filters)
+    except PyCelonisDataExportFailedError:
+        return f"Time distance analysis is not available for {table_name}"
+    return res_dis
 
 
 def trace_cluster(data_model, table_name, case_column, activity_column, resource_column, lifecycle_column):
-
-
     columns = [PQLColumn(name="case_id", query=f'("{table_name}"."{case_column}")'),
                PQLColumn(name="activity_trace", query=f'VARIANT("{table_name}"."{activity_column}")'),
-               PQLColumn(name="Cluster", query=f'CLUSTER_VARIANTS ( VARIANT ( "{table_name}"."{activity_column}" ) , 2 , 2 )'),
-              ]
+               PQLColumn(name="Cluster",
+                         query=f'CLUSTER_VARIANTS ( VARIANT ( "{table_name}"."{activity_column}" ) , 2 , 2 )'),
+               ]
 
     res = execute_PQL_query(data_model, columns, distinct=True)
 
@@ -191,20 +226,18 @@ def trace_cluster(data_model, table_name, case_column, activity_column, resource
 
     # Sort by the values in the 'case_count' column in descending order
     new_df = new_df.sort_values('case_count', ascending=False).reset_index(drop=True)
-    
-    return new_df
 
+    return new_df
 
 
 def split_df(df, p=0.2):
     # Calculate the row for the cutoff
     cutoff = int(len(df) * p)
-    
+
     # Get the 'activity_trace' of the first p percent of rows
     first_p = [[trace] for trace in df['activity_trace'].iloc[:cutoff]]
-    
+
     # Get the 'activity_trace' of the rest of the rows
     rest = [[trace] for trace in df['activity_trace'].iloc[cutoff:]]
-    
-    return first_p, rest
 
+    return first_p, rest
