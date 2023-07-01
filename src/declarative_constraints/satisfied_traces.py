@@ -3,7 +3,7 @@ from constraint_operations import CONSTRAINT_LIBRARY,regex_dfa
 
 import re
 
-def find_anomalies(new_observation_traces, satisfied_constraints, symbols, CONSTRAINT_LIBRARY):
+def find_anomalies(new_observation_traces, valid_constraints, symbols, CONSTRAINT_LIBRARY):
     """
     Find anomalies in new observation traces based on satisfied constraints
     :param new_observation_traces: list of strings (new observation traces)
@@ -12,6 +12,7 @@ def find_anomalies(new_observation_traces, satisfied_constraints, symbols, CONST
     :param CONSTRAINT_LIBRARY: dictionary of constraint templates
     :return: list of anomalies (traces that do not satisfy the constraints)
     """
+    satisfied_constraints = list(valid_constraints.keys())
     anomalies = []
 
     for trace in new_observation_traces:
