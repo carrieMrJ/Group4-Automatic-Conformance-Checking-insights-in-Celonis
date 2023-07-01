@@ -1,13 +1,8 @@
-from collections import defaultdict
 import pandas as pd
-from flask import render_template, Flask, Blueprint
 import warnings
 from src.get_data import get_res_act_relation
 
-resource_based_analysis_app = Blueprint('resource_based_analysis_app', __name__)
 
-
-@resource_based_analysis_app.route('/resource_performance')
 def resource_performance(df):
     """
     Find the most efficient resource and the least efficient resource for each activity
@@ -33,7 +28,6 @@ def resource_performance(df):
     return least_efficient, most_efficient
 
 
-@resource_based_analysis_app.route('/batch_identification')
 def batch_identification(df, activities):
     """
     Identify all possible batches for al available combination of resources and activities
@@ -72,7 +66,7 @@ def batch_identification(df, activities):
                     elif (row1[4] < row2[3]) or (row2[4] < row1[3]):
                         invalid.append(row1[2])
                     else:
-                        con.append(row2)
+                        con.append(row2[2])
     df_sim = pd.DataFrame(sim,
                           columns=["Simultaneous"]).drop_duplicates()
     df_seq = pd.DataFrame(seq,
@@ -80,6 +74,4 @@ def batch_identification(df, activities):
     df_con = pd.DataFrame(con,
                           columns=["Concurrent"]).drop_duplicates()
 
-    return render_template('_____', tables=[df_sim.to_html(classes='data', header='true'),
-                                                  df_seq.to_html(classes='data', header='true'),
-                                                  df_con.to_html(classes='data', header='true')])
+    return df_sim, df_seq, df_con
