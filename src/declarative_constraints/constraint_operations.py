@@ -1,5 +1,5 @@
 import re
-from collections import defaultdict
+from collections import defaultdict, Counter
 from src.declarative_constraints.templates import startWith, endWith, never, atMostOnce, atLeastOnce, precedence, \
     alternate_precedence, \
     chain_precedence, responded_existence, response, alternate_response, chain_response, succession, \
@@ -17,6 +17,14 @@ CONSTRAINT_LIBRARY = {"startWith": startWith, "endWith": endWith, "atMostOnce": 
                       "not_succession": not_succession, "not_chain_succession": not_chain_succession}
 
 
+def encode_trace(trace, mapping):
+    encoded = ""
+    tmp = trace.split(", ")
+    for act in tmp:
+        encoded += mapping[act]
+    return trace
+
+
 # generate all possible constraint templates
 def constraints_generation(input_symbols, constraint_names, constraint_library):
     """
@@ -24,7 +32,7 @@ def constraints_generation(input_symbols, constraint_names, constraint_library):
     :param constraint_library:
     :param input_symbols: all the input modified_input_symbols
     :param constraint_names: Considered constraints templates
-    :return: dictionary with key-->constraint template; value-->regular expression
+    :return: dictionary with key-->constraint template; value-->parameters
     """
     # combinations of 2 parameters
     combination2 = [(x, y) for x, y in product(input_symbols, repeat=2) if x != y]
@@ -33,47 +41,50 @@ def constraints_generation(input_symbols, constraint_names, constraint_library):
     constraint_regex = defaultdict(list)
     for name in constraint_names:
         template = constraint_library[name]
-        # 2 parameters: input modified_input_symbols, act1
-        if template.__code__.co_argcount == 2:
+        # 2 parameters: input act1
+        if template.__code__.co_argcount == 1:
             for act in input_symbols:
 
                 constraint_regex[f"{name}"].append({"parameters": act,
-                                                    "regex": template(input_symbols, act)})
+                                                    "regex": template(act)})
                 if act == 'a':
                     print(template(input_symbols, act))
 
-        # 3 parameters: input modified_input_symbols, act1, act2
-        if template.__code__.co_argcount == 3:
+        # 3 parameters: input act1, act2
+        if template.__code__.co_argcount == 2:
             for comb in combination2:
                 constraint_regex[f"{name}"].append({"parameters": (comb[0], comb[1]),
-                                                    "regex": template(input_symbols, comb[0], comb[1])})
-    valid = defaultdict(list)
+                                                    "regex": template(comb[0], comb[1])})
+    constraint_list = defaultdict(list)
     for name in constraint_regex:
         for items in constraint_regex[name]:
-            valid[f"{name}"].append(items["parameters"])
-    return valid
+            constraint_list[f"{name}"].append(items["parameters"])
+    return constraint_list
 
 
-def event_log_constraint_extraction(main_trace_list, constraint_list, symbols, constraint_library):
+def event_log_constraint_extraction(trace_list, constraint_list, constraint_library, percentage_of_instances,
+                                    mapping=None, reverse_mapping=None):
     """
     Find out the diagnostics
+    :param mapping:
+    :param reverse_mapping:
+    :param percentage_of_instances:
     :param constraint_library:
     :param symbols:
-    :param main_trace_list: list of string
+    :param trace_list:
     :param constraint_list: dictionary key:constraint name value:constraint parameter
     :return:
     """
-    # list of dfa for constraints
+    # list of regex for constraints
     regex4constraints = {}
     # list of invalid constraints
-    valid_constraints = defaultdict(list)
     try:
         for key, value in constraint_list.items():
             # print(f"{key}:{value}")
             template = constraint_library[key]
-            if template.__code__.co_argcount == 3:
+            if template.__code__.co_argcount == 2:
                 for item in value:
-                    regex = template(symbols, item[0], item[1])
+                    regex = template(item[0], item[1])
                     # print(f"regex: {regex}")
                     print(f"loading regex for {key}:{item} {regex}")
                     # dfa4constraints[f"{key}:{item}"] = regex_dfa(
@@ -81,26 +92,30 @@ def event_log_constraint_extraction(main_trace_list, constraint_list, symbols, c
                     regex4constraints[f"{key}:{item[0]},{item[1]}"] = regex
             else:
                 for item in value:
-                    regex = template(symbols, item)
+                    regex = template(item)
                     print(f"loading regex for {key}:{item} {regex}")
-                    # dfa4constraints[f"{key}:{item}"] = regex_dfa(regex)
+
                     regex4constraints[f"{key}:{item}"] = regex
     except KeyError:
         pass
-    # res = defaultdict(set)
-    res_ = {}
-    for trace in main_trace_list:
-        print(trace)
-        tmp = defaultdict(set)
+    res_ = []
+    sum_case = sum(trace_list["case_count"])
+    cnt = Counter()
+
+    for idx, rows in trace_list.iterrows():
+        cur_trace = rows["activity_trace"]
+        encoded_trace = encode_trace(cur_trace, mapping)
         for key, regex in regex4constraints.items():
-            constraint_name = key.split(":")
-            # flag = dfa.accepts_input(trace)
-            flag = re.fullmatch(regex, trace)
-            print(f"{regex}:{trace}={flag}")
+            flag = re.fullmatch(regex, encoded_trace)
             if flag and flag.group() != '':
-                tmp[f"{constraint_name[0]}"].add(constraint_name[1])
-                # res[f"{constraint_name[0]}"].add(constraint_name[1])
-                valid_constraints[key].append(trace)
-        res_[trace] = tmp
-    # satisfied_constraints = list(valid_constraints.keys())
+                cnt[key] += rows["case_count"]
+    for key, value in cnt.items():
+        split = key.split(":")
+        if value >= sum_case * percentage_of_instances:
+            constraint_name = split[0]
+            if len(split[1]) == 1:
+                res_.append(f"{constraint_name}:{reverse_mapping[split[1]]}")
+            else:
+                params = split[1].split(",")
+                res_.append(f"{constraint_name}:{reverse_mapping[params[0]]}, {reverse_mapping[params[1]]}")
     return res_
