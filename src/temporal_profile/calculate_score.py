@@ -2,8 +2,10 @@ def z_score(x,m,s):
     """
     z_score: A function that returns z_score.
     """
-
-    return abs((x-m)/s)
+    if x==m:
+        return 0
+    else:
+        return abs((x-m)/s)
 
 def temporal_deviation_cost_function(x,w,phi,k,a,b,c):
     """
@@ -43,7 +45,7 @@ def get_z_score(task_duration, time_distance, temp_profile_dur, temp_profile_dis
         x=line['task_duration(min)']
         y=temp_profile_dur.loc[temp_profile_dur['Activity']==line['start_activity']]
 
-        if z_score(x,y['mean_task_duration(min)'][0],y['stdev_task_duration(min)'][0])>k:
+        if z_score(x,y.iloc[0,3],y.iloc[0,4])>k:
             anomaly_dur.append(line)
         else:
             normal_dur.append(line)
@@ -52,9 +54,9 @@ def get_z_score(task_duration, time_distance, temp_profile_dur, temp_profile_dis
     for index,line in time_distance.iterrows():
 
         x=line['time_distance(min)']
-        y=temp_profile_dis.loc[temp_profile_dis['Activity']==line['start_activity']+line['end_activity']]
-
-        if z_score(x,y['mean_time_distance(min)'][0],y['stdev_time_distance(min)'][0])>k:
+        y=temp_profile_dis.loc[(temp_profile_dis['Start_activity']==line['start_activity']) & (temp_profile_dis['End_activity']==line['end_activity'])]
+        
+        if z_score(x,y.iloc[0,4],y.iloc[0,5])>k:
             anomaly_dis.append(line)
         else:
             normal_dis.append(line)
