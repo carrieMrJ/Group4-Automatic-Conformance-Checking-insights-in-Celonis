@@ -5,8 +5,6 @@ from src.declarative_constraints.templates import startWith, endWith, never, atM
     chain_precedence, responded_existence, response, alternate_response, chain_response, succession, \
     alternate_succession, chain_succession, not_coexistence, not_chain_succession, not_succession
 from itertools import product
-# from automata.fa.dfa import DFA
-# from automata.fa.nfa import NFA
 
 CONSTRAINT_LIBRARY = {"startWith": startWith, "endWith": endWith, "atMostOnce": atMostOnce, "atLeastOnce": atLeastOnce,
                       "never": never,
@@ -17,10 +15,6 @@ CONSTRAINT_LIBRARY = {"startWith": startWith, "endWith": endWith, "atMostOnce": 
                       "alternate_succession": alternate_succession, "chain_succession": chain_succession,
                       "not_coexistence": not_coexistence,
                       "not_succession": not_succession, "not_chain_succession": not_chain_succession}
-
-
-# def regex_dfa(regex):
-#     return DFA.from_nfa(NFA.from_regex(regex))
 
 
 # generate all possible constraint templates
@@ -63,6 +57,7 @@ def constraints_generation(input_symbols, constraint_names, constraint_library):
 def event_log_constraint_extraction(main_trace_list, constraint_list, symbols, constraint_library):
     """
     Find out the diagnostics
+    :param constraint_library:
     :param symbols:
     :param main_trace_list: list of string
     :param constraint_list: dictionary key:constraint name value:constraint parameter
@@ -92,7 +87,7 @@ def event_log_constraint_extraction(main_trace_list, constraint_list, symbols, c
                     regex4constraints[f"{key}:{item}"] = regex
     except KeyError:
         pass
-    res = defaultdict(set)
+    # res = defaultdict(set)
     res_ = {}
     for trace in main_trace_list:
         print(trace)
@@ -104,8 +99,8 @@ def event_log_constraint_extraction(main_trace_list, constraint_list, symbols, c
             print(f"{regex}:{trace}={flag}")
             if flag and flag.group() != '':
                 tmp[f"{constraint_name[0]}"].add(constraint_name[1])
-                res[f"{constraint_name[0]}"].add(constraint_name[1])
+                # res[f"{constraint_name[0]}"].add(constraint_name[1])
                 valid_constraints[key].append(trace)
         res_[trace] = tmp
-    #satisfied_constraints = list(valid_constraints.keys())
+    # satisfied_constraints = list(valid_constraints.keys())
     return res_
