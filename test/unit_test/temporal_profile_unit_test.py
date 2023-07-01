@@ -1,7 +1,7 @@
 import unittest
 import pandas as pd
 from src.get_data import split_df
-from src.temporal_profile.calculate_score import get_z_score
+from src.temporal_profile.deviation_based_on_z_score import get_z_score
 
 class TemporalProfileTestCase(unittest.TestCase):
     def test_split_df(self):
