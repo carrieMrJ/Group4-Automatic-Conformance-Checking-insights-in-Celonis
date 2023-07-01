@@ -1,7 +1,5 @@
 from pycelonis.pql import PQLColumn, PQLFilter
-import pycelonis
-from src.celonis_data_integration import execute_PQL_query, get_connection, check_invalid_table_in_celonis, \
-    get_celonis_info
+from src.celonis_data_integration import execute_PQL_query
 from pycelonis_core.utils.errors import PyCelonisNotFoundError
 from pycelonis.errors import PyCelonisDataExportFailedError
 
@@ -108,7 +106,7 @@ def get_task_duration_time_distance(data_pool, data_model, table_name, case_colu
         try:
             data_pool_table = data_pool.get_tables().find(f'{table_name}_time_distance')
         except PyCelonisNotFoundError:
-            data_pool.create_table(df=res_task_duration, table_name=f'{table_name}_time_distance',
+            data_pool.create_table(df=res_time_distance, table_name=f'{table_name}_time_distance',
                                    drop_if_exists=False)
             data_model.add_table(name=f'{table_name}_task_duration', alias=f'{table_name}_time_distance')
         else:
@@ -134,7 +132,6 @@ def calculate_temporal_profile_task_duration(data_model, table_name, types, case
             s += f"\'{idx}\',"
         s = s[:-1]
         s += ")"
-    print(s)
     if types == "mainstream":
         filters = [PQLFilter(query=f'FILTER "{table_name}_task_duration"."{case_column}" IN {s};')]
     elif types == "new":
@@ -142,24 +139,30 @@ def calculate_temporal_profile_task_duration(data_model, table_name, types, case
     else:
         filters = []
 
-    cols_dur = [PQLColumn(name="Activity", query=f'"{table_name}_task_duration"."start_activity"'),
-                PQLColumn(name="max_task_duration(min)",
-                          query=f'MAX("{table_name}_task_duration"."task_duration(min)")'),
-                PQLColumn(name="min_task_duration(min)",
-                          query=f'MIN("{table_name}_task_duration"."task_duration(min)")'),
-                PQLColumn(name="mean_task_duration(min)",
-                          query=f'ROUND(AVG("{table_name}_task_duration"."task_duration(min)"), 2)'),
-                PQLColumn(name="stdev_task_duration(min)",
-                          query=f'ROUND(STDEV("{table_name}_task_duration"."task_duration(min)"), 2)'),
-                PQLColumn(name="var_task_duration(min)",
-                          query=f'ROUND(VAR("{table_name}_task_duration"."task_duration(min)"), 2)'),
-                ]
+    cols_dur_metrics = [PQLColumn(name="Activity", query=f'"{table_name}_task_duration"."start_activity"'),
+                        PQLColumn(name="max_task_duration(min)",
+                                  query=f'MAX("{table_name}_task_duration"."task_duration(min)")'),
+                        PQLColumn(name="min_task_duration(min)",
+                                  query=f'MIN("{table_name}_task_duration"."task_duration(min)")'),
+                        PQLColumn(name="mean_task_duration(min)",
+                                  query=f'ROUND(AVG("{table_name}_task_duration"."task_duration(min)"), 2)'),
+                        PQLColumn(name="stdev_task_duration(min)",
+                                  query=f'ROUND(STDEV("{table_name}_task_duration"."task_duration(min)"), 2)'),
+                        PQLColumn(name="var_task_duration(min)",
+                                  query=f'ROUND(VAR("{table_name}_task_duration"."task_duration(min)"), 2)'),
+                        ]
+    cols_dur_original = [PQLColumn(name="case_id", query=f'"{table_name}_task_duration"."case_id"'),
+                         PQLColumn(name="Activity", query=f'"{table_name}_task_duration"."start_activity"'),
+                         PQLColumn(name="task_duration(min)",
+                                   query=f'"{table_name}_task_duration"."task_duration(min)"')]
     try:
-        res_dur = execute_PQL_query(data_model, cols_dur, filters=filters)
+        res_dur = execute_PQL_query(data_model, cols_dur_metrics, filters=filters)
+        res_dur_original = execute_PQL_query(data_model, cols_dur_original, filters=filters)
     except PyCelonisDataExportFailedError:
-        return f"Task duration analysis is not available for {table_name}"
+        print(f"Task duration analysis is not available for {table_name}")
+        return None, None
 
-    return res_dur
+    return res_dur, res_dur_original
 
 
 def calculate_temporal_profile_time_distance(data_model, table_name, types, case_column, mainstream_case_id=None):
@@ -178,32 +181,38 @@ def calculate_temporal_profile_time_distance(data_model, table_name, types, case
             s += f"\'{idx}\',"
         s = s[:-1]
         s += ")"
-    print(s)
     if types == "mainstream":
         filters = [PQLFilter(query=f'FILTER "{table_name}_time_distance"."{case_column}" IN {s};')]
     elif types == "new":
-        filters = [PQLFilter(query=f'FILTER "{table_name}__time_distance"."{case_column}" NOT IN {s};')]
+        filters = [PQLFilter(query=f'FILTER "{table_name}_time_distance"."{case_column}" NOT IN {s};')]
     else:
         filters = []
 
-    cols_dis = [PQLColumn(name="Start_Activity", query=f'"{table_name}_time_distance"."start_activity"'),
-                PQLColumn(name="End_Activity", query=f'"{table_name}_time_distance"."end_activity"'),
-                PQLColumn(name="max_time_distance(min)",
-                          query=f'MAX("{table_name}_time_distance"."time_distance(min)")'),
-                PQLColumn(name="min_time_distance(min)",
-                          query=f'MIN("{table_name}_time_distance"."time_distance(min)")'),
-                PQLColumn(name="mean_time_distance(min)",
-                          query=f'ROUND(AVG("{table_name}_time_distance"."time_distance(min)"), 2)'),
-                PQLColumn(name="stdev_time_distance(min)",
-                          query=f'ROUND(STDEV("{table_name}_time_distance"."time_distance(min)"), 2)'),
-                PQLColumn(name="var_time_distance(min)",
-                          query=f'ROUND(VAR("{table_name}_time_distance"."time_distance(min)"), 2)'),
-                ]
+    cols_dis_metrics = [PQLColumn(name="Start_Activity", query=f'"{table_name}_time_distance"."start_activity"'),
+                        PQLColumn(name="End_Activity", query=f'"{table_name}_time_distance"."end_activity"'),
+                        PQLColumn(name="max_time_distance(min)",
+                                  query=f'MAX("{table_name}_time_distance"."time_distance(min)")'),
+                        PQLColumn(name="min_time_distance(min)",
+                                  query=f'MIN("{table_name}_time_distance"."time_distance(min)")'),
+                        PQLColumn(name="mean_time_distance(min)",
+                                  query=f'ROUND(AVG("{table_name}_time_distance"."time_distance(min)"), 2)'),
+                        PQLColumn(name="stdev_time_distance(min)",
+                                  query=f'ROUND(STDEV("{table_name}_time_distance"."time_distance(min)"), 2)'),
+                        PQLColumn(name="var_time_distance(min)",
+                                  query=f'ROUND(VAR("{table_name}_time_distance"."time_distance(min)"), 2)'),
+                        ]
+    cols_dis_original = [PQLColumn(name="case_id", query=f'"{table_name}_time_distance"."case_id"'),
+                         PQLColumn(name="Start_Activity", query=f'"{table_name}_time_distance"."start_activity"'),
+                         PQLColumn(name="End_Activity", query=f'"{table_name}_time_distance"."end_activity"'),
+                         PQLColumn(name="time_distance(min)",
+                                   query=f'"{table_name}_time_distance"."time_distance(min)"')]
     try:
-        res_dis = execute_PQL_query(data_model, cols_dis, filters=filters)
+        res_dis = execute_PQL_query(data_model, cols_dis_metrics, filters=filters)
+        res_dis_original = execute_PQL_query(data_model, cols_dis_original, filters=filters)
     except PyCelonisDataExportFailedError:
-        return f"Time distance analysis is not available for {table_name}"
-    return res_dis
+        print(f"Time distance analysis is not available for {table_name}")
+        return None, None
+    return res_dis, res_dis_original
 
 
 def trace_cluster(data_model, table_name, case_column, activity_column, resource_column, lifecycle_column):
