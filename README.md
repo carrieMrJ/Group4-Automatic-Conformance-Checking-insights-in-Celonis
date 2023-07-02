@@ -11,10 +11,10 @@ After doing this you will get all the necessary packages installed
 
 |--src                                  : Source-Code folder  
 |--|--anomaly_detection                 : Anomaly detection using Isolation Forest 
-|--|--|--preprocessing_ohe.py           : Preprocessing data with one-hot encoding
-|--|--|--dimensionality_reduction.py    : Reducing dimension using PCA
-|--|--|--isolation_forests.py           : Finding anomalies with IsolationForest
-|--|--|--oneclass_svm.py                : Finding anomlaies using OneClassSVM
+|--|--|--preprocessing_ohe.py           : Preprocessing data with one-hot encoding  
+|--|--|--dimensionality_reduction.py    : Reducing dimension using PCA  
+|--|--|--isolation_forests.py           : Finding anomalies with IsolationForest  
+|--|--|--oneclass_svm.py                : Finding anomlaies using OneClassSVM  
 |--|--data_integration                  : Folder for retrieve necessary data   
 |--|--|--celonis_data_integration.py    : Functions for connecting to Celonis platform  
 |--|--|--get_data.py                    : Retrieve data from Celonis data pool  
