@@ -58,7 +58,7 @@ def temporal_profile_deviations(new_task_dur, new_time_dis, temporal_profile_tas
 def declarative_constraint_analysis(data_model, table_name, activity_column, constraint_names, constraint_library,
                                     variants_info, percentage_of_instances=0.5):
     mapping, reverse, activities = encode_activities(data_model, table_name, activity_column)
-    constraint_list = constraints_generation(list(mapping.values), constraint_names, constraint_library)
+    constraint_list = constraints_generation(list(mapping.values()), constraint_names, constraint_library)
     constraints_extracted = event_log_constraint_extraction(variants_info, constraint_list, constraint_library,
                                                             percentage_of_instances, mapping, reverse)
     return constraints_extracted
