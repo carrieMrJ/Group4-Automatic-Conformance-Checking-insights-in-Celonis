@@ -22,33 +22,30 @@ def encode_trace(trace, mapping):
     tmp = trace.split(", ")
     for act in tmp:
         encoded += mapping[act]
-    return trace
+    return encoded
 
 
 # generate all possible constraint templates
-def constraints_generation(input_symbols, constraint_names, constraint_library):
+def constraints_generation(encoded_input_symbols, constraint_names, constraint_library):
     """
     Generate all possible constraints templates with given parameters
     :param constraint_library:
-    :param input_symbols: all the input modified_input_symbols
+    :param encoded_input_symbols: all the input modified_input_symbols
     :param constraint_names: Considered constraints templates
     :return: dictionary with key-->constraint template; value-->parameters
     """
     # combinations of 2 parameters
-    combination2 = [(x, y) for x, y in product(input_symbols, repeat=2) if x != y]
-    # print("possible parameters combination:", combination2)
+    combination2 = [(x, y) for x, y in product(encoded_input_symbols, repeat=2) if x != y]
 
     constraint_regex = defaultdict(list)
     for name in constraint_names:
         template = constraint_library[name]
         # 2 parameters: input act1
         if template.__code__.co_argcount == 1:
-            for act in input_symbols:
+            for act in encoded_input_symbols:
 
                 constraint_regex[f"{name}"].append({"parameters": act,
                                                     "regex": template(act)})
-                if act == 'a':
-                    print(template(input_symbols, act))
 
         # 3 parameters: input act1, act2
         if template.__code__.co_argcount == 2:
@@ -66,11 +63,10 @@ def event_log_constraint_extraction(trace_list, constraint_list, constraint_libr
                                     mapping=None, reverse_mapping=None):
     """
     Find out the diagnostics
-    :param mapping:
-    :param reverse_mapping:
-    :param percentage_of_instances:
-    :param constraint_library:
-    :param symbols:
+    :param mapping: encode trace
+    :param reverse_mapping: decode trace
+    :param percentage_of_instances: specify that a DECLARE constraint can still be discovered even if it does not hold for all process instances of the log
+    :param constraint_library: all constraints
     :param trace_list:
     :param constraint_list: dictionary key:constraint name value:constraint parameter
     :return:
@@ -80,22 +76,13 @@ def event_log_constraint_extraction(trace_list, constraint_list, constraint_libr
     # list of invalid constraints
     try:
         for key, value in constraint_list.items():
-            # print(f"{key}:{value}")
             template = constraint_library[key]
             if template.__code__.co_argcount == 2:
                 for item in value:
-                    regex = template(item[0], item[1])
-                    # print(f"regex: {regex}")
-                    print(f"loading regex for {key}:{item} {regex}")
-                    # dfa4constraints[f"{key}:{item}"] = regex_dfa(
-                    #     regex)
-                    regex4constraints[f"{key}:{item[0]},{item[1]}"] = regex
+                    regex4constraints[f"{key}:{item[0]},{item[1]}"] = template(item[0], item[1])
             else:
                 for item in value:
-                    regex = template(item)
-                    print(f"loading regex for {key}:{item} {regex}")
-
-                    regex4constraints[f"{key}:{item}"] = regex
+                    regex4constraints[f"{key}:{item}"] = template(item)
     except KeyError:
         pass
     res_ = []
@@ -103,8 +90,7 @@ def event_log_constraint_extraction(trace_list, constraint_list, constraint_libr
     cnt = Counter()
 
     for idx, rows in trace_list.iterrows():
-        cur_trace = rows["activity_trace"]
-        encoded_trace = encode_trace(cur_trace, mapping)
+        encoded_trace = encode_trace(rows["activity_trace"], mapping)
         for key, regex in regex4constraints.items():
             flag = re.fullmatch(regex, encoded_trace)
             if flag and flag.group() != '':
