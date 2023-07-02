@@ -10,7 +10,7 @@ def get_connection():
     :return: Celonis object
     """
     try:
-        file = open("../.config.yaml")
+        file = open("../../.config.yaml")
         config = yaml.safe_load(file)
     except FileNotFoundError:
         return "The configuration file is empty."
@@ -33,7 +33,7 @@ def get_celonis_info(celonis):
     :return: data model and data pool of our project
     """
     try:
-        file = open("../.config.yaml")
+        file = open("../../.config.yaml")
         config = yaml.safe_load(file)
     except FileNotFoundError:
         return "The configuration file is empty."

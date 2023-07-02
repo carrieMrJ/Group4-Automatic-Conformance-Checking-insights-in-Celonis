@@ -2,11 +2,10 @@ import unittest
 import pandas as pd
 from unittest.mock import patch
 from io import StringIO
-from src.get_data import get_unique_activity, get_unique_resource
-from src.resource_based_analysis import batch_identification
-from src.retrieve_data_for_activities_repeated_by_difference_resources_PQL import get_caseid_activity_lifecycle_resource
-from src.find_high_rework_resources_analysis import find_high_rework_resources
-from src.find_deviations_analysis import find_deviations
+from src.data_integration.get_data import get_unique_activity, get_unique_resource
+from src.resource_based.resource_performance import batch_identification
+from src.resource_based.find_high_rework_resources_analysis import find_high_rework_resources
+from src.resource_based.find_deviations_analysis import find_deviations
 
 class ResourceBasedTestCase(unittest.TestCase):
     def test_unique_activity_resource(self):
