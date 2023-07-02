@@ -2,7 +2,7 @@ from pycelonis.pql import PQLColumn, PQLFilter
 from pycelonis_core.utils.errors import PyCelonisNotFoundError
 from pycelonis.errors import PyCelonisDataExportFailedError
 import string
-from src.celonis_data_integration import execute_PQL_query
+from src.data_integration.celonis_data_integration import execute_PQL_query
 
 
 def get_execution_time_per_res_per_act(data_mode, table_name, case_column, activity_column, resource_column,
