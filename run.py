@@ -21,11 +21,11 @@ def temporal_profile_analysis(data_pool, data_model, table_name, case_column, ac
                                                                    time_column=time_column,
                                                                    lifecycle_column=lifecycle_column)
 
-    temporal_profile_task_dur_all, new_task_all = calculate_temporal_profile_task_duration(data_model, table_name,
+    temporal_profile_task_dur_all, all_task_dur = calculate_temporal_profile_task_duration(data_model, table_name,
                                                                                            "overall", "case_id",
                                                                                            mainstream_id)
 
-    temporal_profile_time_dis_all, new_time_all = calculate_temporal_profile_time_distance(data_model, table_name,
+    temporal_profile_time_dis_all, all_time_dis = calculate_temporal_profile_time_distance(data_model, table_name,
                                                                                            "overall", "case_id",
                                                                                            mainstream_id)
 
@@ -44,7 +44,7 @@ def temporal_profile_analysis(data_pool, data_model, table_name, case_column, ac
                                                                                            "new", "case_id",
                                                                                            mainstream_id)
 
-    return temporal_profile_task_dur_all, temporal_profile_time_dis_all, temporal_profile_task_dur_main, temporal_profile_dis_main, temporal_profile_task_dur_new, temporal_profile_time_dis_new
+    return temporal_profile_task_dur_all, all_task_dur, temporal_profile_time_dis_all, all_time_dis, temporal_profile_task_dur_main, main_task_dur, temporal_profile_task_dur_main, main_task_dur, temporal_profile_task_dur_new, new_task_dur, temporal_profile_time_dis_new, new_time_dis
 
 
 def temporal_profile_deviations(new_task_dur, new_time_dis, temporal_profile_task_dur_main,
