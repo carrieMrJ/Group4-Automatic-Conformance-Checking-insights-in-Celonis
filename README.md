@@ -10,7 +10,7 @@ After doing this you will get all the necessary packages installed
 **Home**
 
 |--src                                  : Source-Code folder  
-|--|--anomaly_detection                 : Anomaly detection using Isolation Forest 
+|--|--anomaly_detection                 : Anomaly detection using Isolation Forest  
 |--|--|--preprocessing_ohe.py           : Preprocessing data with one-hot encoding  
 |--|--|--dimensionality_reduction.py    : Reducing dimension using PCA  
 |--|--|--isolation_forests.py           : Finding anomalies with IsolationForest  
