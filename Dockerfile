@@ -11,7 +11,7 @@ RUN apt-get install -y git
 
 RUN git clone https://github.com/carrieMrJ/Group4-Automatic-Conformance-Checking-insights-in-Celonis
 WORKDIR /Group4-Automatic-Conformance-Checking-insights-in-Celonis
-RUN pip install --extra-index-url=https://pypi.celonis.cloud/ pycelonis=="2.0.1"
+RUN pip install --extra-index-url=https://pypi.celonis.cloud/ pycelonis=="2.3.0"
 RUN pip freeze > requirements.txt
 #RUN pip install -r requirements.txt
 
