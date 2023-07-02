@@ -10,7 +10,11 @@ After doing this you will get all the necessary packages installed
 **Home**
 
 |--src                                  : Source-Code folder  
-|--|--anomaly_detection                 : Anomaly detection using Isolation Forest  
+|--|--anomaly_detection                 : Anomaly detection using Isolation Forest 
+|--|--|--preprocessing_ohe.py           : Preprocessing data with one-hot encoding
+|--|--|--dimensionality_reduction.py    : Reducing dimension using PCA
+|--|--|--isolation_forests.py           : Finding anomalies with IsolationForest
+|--|--|--oneclass_svm.py                : Finding anomlaies using OneClassSVM
 |--|--data_integration                  : Folder for retrieve necessary data   
 |--|--|--celonis_data_integration.py    : Functions for connecting to Celonis platform  
 |--|--|--get_data.py                    : Retrieve data from Celonis data pool  
@@ -38,6 +42,7 @@ After doing this you will get all the necessary packages installed
 |--|--|--declarative_constraints_operations_unit_test.py  
 |--|--|--resource_based_unit_test.py  
 |--|--|--temporal_profile_unit_test.py
+|--|--|--anomaly_detection_unittest.py
 |--requirements.txt                     : Required library used in this framework  
 |--.config.yaml                         : Celonis connection information  
 |--Dockerfile                           : Docker image build configuration  
