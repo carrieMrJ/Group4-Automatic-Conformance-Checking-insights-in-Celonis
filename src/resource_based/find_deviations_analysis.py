@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
-
-
 import pandas as pd
 
 def find_deviations(df, threshold):
@@ -12,6 +6,9 @@ def find_deviations(df, threshold):
     
     # Filter the usual activities based on a threshold
     usual_activities = usual_activities[usual_activities > threshold].reset_index(name='count').groupby('resource')['activity'].apply(set)
+
+    # Prepare an empty DataFrame for the deviations
+    deviations = pd.DataFrame(columns=['resource', 'unusual_activity', 'case'])
 
     # Track the activities of each resource in the log
     for case in df['case_id'].unique():
@@ -22,5 +19,11 @@ def find_deviations(df, threshold):
 
             # If a resource executes an activity that is not in their usual set, flag it
             if activity not in usual_activities.get(resource, set()):
-                print(f'Deviation found: Resource {resource} performed unusual activity {activity} in case {case}')
+                deviation = pd.DataFrame({
+                    'resource': [resource],
+                    'unusual_activity': [activity],
+                    'case': [case]
+                })
+                deviations = pd.concat([deviations, deviation], ignore_index=True)
 
+    return deviations
