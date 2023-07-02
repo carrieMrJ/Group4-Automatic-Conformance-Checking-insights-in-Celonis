@@ -9,7 +9,8 @@ After doing this you will get all the necessary packages installed
 ## Project Structure
 **Home**
 
-|--src                                  : Source-Code folder  
+|--src                                  : Source-Code folder 
+|--|--anomaly_detection                 : Anomaly detection using Isolation Forest
 |--|--data_integration                  : Folder for retrieve necessary data   
 |--|--|--celonis_data_integration.py    : Functions for connecting to Celonis platform  
 |--|--|--get_data.py                    : Retrieve data from Celonis data pool  
