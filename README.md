@@ -41,8 +41,8 @@ After doing this you will get all the necessary packages installed
 |--|--|--declarative_constraints_templates_unit_test.py  
 |--|--|--declarative_constraints_operations_unit_test.py  
 |--|--|--resource_based_unit_test.py  
-|--|--|--temporal_profile_unit_test.py
-|--|--|--anomaly_detection_unittest.py
+|--|--|--temporal_profile_unit_test.py  
+|--|--|--anomaly_detection_unittest.py  
 |--requirements.txt                     : Required library used in this framework  
 |--.config.yaml                         : Celonis connection information  
 |--Dockerfile                           : Docker image build configuration  
