@@ -15,6 +15,7 @@ After doing this you will get all the necessary packages installed
 |--|--|--dimensionality_reduction.py    : Reducing dimension using PCA  
 |--|--|--isolation_forests.py           : Finding anomalies with IsolationForest  
 |--|--|--oneclass_svm.py                : Finding anomlaies using OneClassSVM  
+|--|--|--get_datas.py                   : Get datas from Celonis    
 |--|--data_integration                  : Folder for retrieve necessary data   
 |--|--|--celonis_data_integration.py    : Functions for connecting to Celonis platform  
 |--|--|--get_data.py                    : Retrieve data from Celonis data pool  
