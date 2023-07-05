@@ -1,10 +1,7 @@
-from dimensionality_reduction import feature_table_reduced_receipt,feature_table_reduced_review
-from preprocessing_ohe import df_review,df_receipt
-
-
 from sklearn.ensemble import IsolationForest
 import matplotlib.pyplot as plt
 import pandas as pd
+from io import BytesIO
 
 #function to calculate anomalies using isolation forests and ranking these anomalies based on their score
 def isolation_forests(feature_table_reduced,event_log):
@@ -22,8 +19,9 @@ def isolation_forests(feature_table_reduced,event_log):
     # Predict outliers
     y_pred_if = isolation_forest.predict(feature_table_reduced)
 
+    anomalies_if = feature_table_reduced[y_pred_if == -1]
     # Plot the data points
-    plt.scatter(feature_table_reduced[:, 0], feature_table_reduced[:, 1], c='blue', label='Normal')
+    '''plt.scatter(feature_table_reduced[:, 0], feature_table_reduced[:, 1], c='blue', label='Normal')
 
     # Plot the anomalies in red color
     anomalies_if = feature_table_reduced[y_pred_if == -1]
@@ -33,7 +31,7 @@ def isolation_forests(feature_table_reduced,event_log):
     plt.xlabel("Principal Component 1")
     plt.ylabel("Principal Component 2")
     plt.legend()
-    plt.show()
+    #plt.show()'''
     
     # Predict outliers/anomalies
     anomaly_scores_if = isolation_forest.decision_function(feature_table_reduced)
@@ -48,13 +46,11 @@ def isolation_forests(feature_table_reduced,event_log):
     anomaly_ranked_if=only_anomalies_if.sort_values('AnomalyScore')
 
     # Print the ranked anomalies with their caseID,Activity,AnomalyScore and AnomalyLabel
-    print(anomaly_ranked_if)
+    #print(anomaly_ranked_if)
 
-    return plt.show(),print(anomaly_ranked_if)
+    '''img=BytesIO()
+    plt.savefig(img,format='png',dpi=200)
+    img.seek(0)'''
 
-# gives out plot of anomalies in the data and ranks of anomalies based on their scores for review data using isolation forests
-if_result_review=isolation_forests(feature_table_reduced_review,df_review)
-
-
-# gives out plot of anomalies in the data and ranks of anomalies based on their scores for receipt data using isolation forest
-if_result_receipt=isolation_forests(feature_table_reduced_receipt,df_receipt)
+    #return img,anomaly_ranked_if
+    return anomalies_if, anomaly_ranked_if

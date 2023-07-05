@@ -1,24 +1,8 @@
-from pycelonis.pql import PQLColumn
-
-from src.celonis_data_integration import execute_PQL_query, get_connection, check_invalid_table_in_celonis, \
-    get_celonis_info
-
-from src.get_data import get_data_for_anomaly_detection_receipt,get_data_for_anomaly_detection_review
-
-
 import pandas as pd
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.compose import make_column_selector as selector
 from sklearn.compose import make_column_transformer 
 from sklearn.compose import ColumnTransformer
-
-
-df_review=get_data_for_anomaly_detection_review(data_mode, table_name, case_column, activity_column, resource_column, timestamp_column)
-
-df_receipt=get_data_for_anomaly_detection_receipt(data_mode, table_name, case_column, activity_column, resource_column, timestamp_column)
-
-
-
 
 #function to preprocess review data along with ohe
 def preprocessing_review(df):
@@ -30,8 +14,8 @@ def preprocessing_review(df):
     """
  
     df_new=df
-    df_new['accepts'] = df_new['accepts'].fillna(0)
-    df_new['rejects'] = df_new['rejects'].fillna(0)
+    df_new['accepts'] = df_new['accepts'].fillna('0')
+    df_new['rejects'] = df_new['rejects'].fillna('0')
 
     for i in enumerate(df_new["time:timestamp"]):
         a=df_new["time:timestamp"][i[0]]
@@ -54,7 +38,7 @@ def preprocessing_review(df):
     X1= preprocessor.transform(df_new)
 
     transformer = make_column_transformer(
-        (OneHotEncoder(sparse_output=False), ['Result by Reviewer A', 'Result by Reviewer B', 'Result by Reviewer C',
+        (OneHotEncoder(sparse=False), ['Result by Reviewer A', 'Result by Reviewer B', 'Result by Reviewer C',
                            'Result by Reviewer X', 'concept:name', 'lifecycle:transition', 'org:resource','case:description']),
         remainder='passthrough')
     
@@ -65,8 +49,6 @@ def preprocessing_review(df):
     return df_new
 
 # df with preprocessed review data
-df_pre_review=preprocessing_review(df_review)
-
 
 #function to preprocess receipt data along with ohe
 def preprocessing_receipt(df_receipt):
@@ -104,7 +86,7 @@ def preprocessing_receipt(df_receipt):
     X1= preprocessor.transform(df_ohe)
 
     transformer = make_column_transformer(
-        (OneHotEncoder(sparse_output=False), ['case:channel','case:department','case:group','case:responsible','concept:instance','concept:name','lifecycle:transition','org:group','org:resource']),
+        (OneHotEncoder(sparse=False), ['case:channel','case:department','case:group','case:responsible','concept:instance','concept:name','lifecycle:transition','org:group','org:resource']),
         remainder='passthrough')
     
 
@@ -116,4 +98,3 @@ def preprocessing_receipt(df_receipt):
     return df_ohe
 
 # df with preprocessed receipt data
-df_pre_receipt=preprocessing_receipt(df_receipt)
