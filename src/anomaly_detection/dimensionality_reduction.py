@@ -1,4 +1,3 @@
-
 from sklearn.decomposition import PCA
 import pandas as pd
 
@@ -11,7 +10,7 @@ def pca(df):
     :return: a new dataframe which has reduced number of dimensions  
  
     """
-    # Apply dimensionality reduction
+
     pca = PCA(n_components=2)
     feature_table_reduced = pca.fit_transform(df)
     

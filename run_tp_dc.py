@@ -88,11 +88,3 @@ def anomaly_tables(table_name, df):
     a_svm, ar_svm = oneclassSVM(pca_table, df)
 
     return pre, pca_table, a_if, ar_if, a_svm, ar_svm
-
-
-'''pre_rev=preprocessing_review(df_review)
-pca_rev=pca(pre_rev)
-a_if_rev, ar_if_rev=isolation_forests(pca_rev,df_review)
-img_revo, table_revo=oneclassSVM(pca_rev,df_review)
-
-pre, pca_table, a_if, ar_if, a_svm, ar_svm = anomaly_tables(table_name)'''

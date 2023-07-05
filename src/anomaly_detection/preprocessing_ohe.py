@@ -4,7 +4,6 @@ from sklearn.compose import make_column_selector as selector
 from sklearn.compose import make_column_transformer 
 from sklearn.compose import ColumnTransformer
 
-#function to preprocess review data along with ohe
 def preprocessing_review(df):
     """
     Preprocessing the review data along with one hot encoding so it can be used in algorithms to find anomalies.
@@ -48,9 +47,6 @@ def preprocessing_review(df):
 
     return df_new
 
-# df with preprocessed review data
-
-#function to preprocess receipt data along with ohe
 def preprocessing_receipt(df_receipt):
     """
     Preprocessing the receipt data along with one hot encoding so it can be used in algorithms to find anomalies.
@@ -96,5 +92,3 @@ def preprocessing_receipt(df_receipt):
 
     df_ohe.head()
     return df_ohe
-
-# df with preprocessed receipt data
