@@ -37,7 +37,7 @@ def preprocessing_review(df):
     X1= preprocessor.transform(df_new)
 
     transformer = make_column_transformer(
-        (OneHotEncoder(sparse=False), ['Result by Reviewer A', 'Result by Reviewer B', 'Result by Reviewer C',
+        (OneHotEncoder(sparse_output=False), ['Result by Reviewer A', 'Result by Reviewer B', 'Result by Reviewer C',
                            'Result by Reviewer X', 'concept:name', 'lifecycle:transition', 'org:resource','case:description']),
         remainder='passthrough')
     
@@ -82,7 +82,7 @@ def preprocessing_receipt(df_receipt):
     X1= preprocessor.transform(df_ohe)
 
     transformer = make_column_transformer(
-        (OneHotEncoder(sparse=False), ['case:channel','case:department','case:group','case:responsible','concept:instance','concept:name','lifecycle:transition','org:group','org:resource']),
+        (OneHotEncoder(sparse_output=False), ['case:channel','case:department','case:group','case:responsible','concept:instance','concept:name','lifecycle:transition','org:group','org:resource']),
         remainder='passthrough')
     
 
