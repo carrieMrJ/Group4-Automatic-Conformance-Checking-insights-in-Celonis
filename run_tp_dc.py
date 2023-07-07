@@ -2,7 +2,11 @@ from src.data_integration.get_data import trace_cluster, split_df, get_task_dura
     calculate_temporal_profile_task_duration, calculate_temporal_profile_time_distance, encode_activities
 from src.declarative_constraints.constraint_operations import constraints_generation, event_log_constraint_extraction
 from src.temporal_profile.deviation_based_on_z_score import get_z_score
-
+from src.anomaly_detection.get_datas import get_data_for_anomaly_detection_receipt, get_data_for_anomaly_detection_review
+from src.anomaly_detection.preprocessing_ohe import preprocessing_receipt, preprocessing_review
+from src.anomaly_detection.dimensionality_reduction import pca
+from src.anomaly_detection.isolation_forests import isolation_forests
+from src.anomaly_detection.oneclass_svm import oneclassSVM
 
 def get_variants_info(data_model, table_name, case_column, activity_column, resource_column, lifecycle_column):
     return trace_cluster(data_model, table_name, case_column, activity_column, resource_column, lifecycle_column)
@@ -62,3 +66,25 @@ def declarative_constraint_analysis(data_model, table_name, activity_column, con
     constraints_extracted = event_log_constraint_extraction(variants_info, constraint_list, constraint_library,
                                                             percentage_of_instances, mapping, reverse)
     return constraints_extracted
+
+def anomaly_detection(data_model, table_name, case_column_name, act_column_name, res_column_name, time_column_name):
+
+    if table_name=='reviewing':
+        df=get_data_for_anomaly_detection_review(data_model, table_name, case_column_name, act_column_name, res_column_name, time_column_name)
+    if table_name=='receipt':
+        df=get_data_for_anomaly_detection_receipt(data_model, table_name, case_column_name, act_column_name, res_column_name, time_column_name)
+    
+    return df
+
+def anomaly_tables(table_name, df):
+    if table_name=='reviewing':
+        pre=preprocessing_review(df)
+    if table_name=='receipt':
+        pre=preprocessing_receipt(df)
+    
+    pca_table=pca(pre)
+
+    a_if, ar_if = isolation_forests(pca_table, df)
+    a_svm, ar_svm = oneclassSVM(pca_table, df)
+
+    return pre, pca_table, a_if, ar_if, a_svm, ar_svm

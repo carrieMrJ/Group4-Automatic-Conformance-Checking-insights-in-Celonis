@@ -12,10 +12,12 @@ from src.resource_based.batch_identification import batch_identification
 from src.data_integration.get_data import get_caseid_activity_lifecycle_resource, trace_cluster, split_df
 from src.resource_based.find_high_rework_resources_analysis import find_high_rework_resources
 from src.resource_based.find_deviations_analysis import find_deviations
-from run_tp_dc import get_variants_info, get_standard_behavior, temporal_profile_analysis, temporal_profile_deviations, declarative_constraint_analysis
+from run_tp_dc import get_variants_info, get_standard_behavior, temporal_profile_analysis, temporal_profile_deviations, declarative_constraint_analysis, anomaly_detection, anomaly_tables
 from src.declarative_constraints.constraint_operations import CONSTRAINT_LIBRARY
-from flask import Flask, render_template_string, request
+from flask import Flask, render_template_string, request, send_file
 import math
+import matplotlib.pyplot as plt
+from io import BytesIO
 from run_resource_based import resource_based_overall
 
 
@@ -39,14 +41,15 @@ temporal_profile_task_dur_all, all_task_dur, temporal_profile_time_dis_all, all_
 
 normal_dur, anomaly_dur, normal_dis, anomaly_dis=temporal_profile_deviations(new_task_dur, new_time_dis,temporal_profile_task_dur_main,temporal_profile_dis_main, 0.1)
 
-
 constraints_extracted=declarative_constraint_analysis(data_model, table_name, act_column_name, list(CONSTRAINT_LIBRARY.keys()), CONSTRAINT_LIBRARY,
                                     variants_info, percentage_of_instances=0.5)
 
 
+df_r = anomaly_detection(data_model, table_name, case_column_name, act_column_name, res_column_name, time_column_name)
+
+pre, pca_table, a_if, ar_if, a_svm, ar_svm = anomaly_tables(table_name, df_r)
 
 app = Flask(__name__)
-
 
 
 @app.route('/')
@@ -230,6 +233,93 @@ def route4():
     '''
     return render_template_string(template, result=result)
 
+@app.route('/anomaly_detection')
+def route5():
+    template='''
+    <html>
+        <body>
+            <h1>Anomaly Detection</h1>
+            <ul>
+                <li><a href="/plot">plot</a></li>
+                <li><a href="/table">table</a></li>
+            </ul>
+            <p><a href="/">Back</a></p>
+        </body>
+    </html>
+    '''
+    
+    return render_template_string(template)
+
+@app.route('/plot')
+def route51():
+    template='''
+    <html>
+        <body>
+            <h1>Plots</h1>
+            <ul>
+                <li><a href="/isolationplot">Isolation Forest</a></li>
+                <li><a href="/svmplot">OneClassSVM</a></li>
+            </ul>
+            <p><a href="/">Back</a></p>
+        </body>
+    </html>
+    '''
+
+    return render_template_string(template)
+
+@app.route('/isolationplot')
+def route511():
+    plt.scatter(pca_table[:, 0], pca_table[:, 1], c='blue', label='Normal')
+
+    plt.scatter(a_if[:, 0], a_if[:, 1], c='red', label='Anomaly')
+
+    plt.title("Anomaly Detection with Isolation Forest and PCA")
+    plt.xlabel("Principal Component 1")
+    plt.ylabel("Principal Component 2")
+    plt.legend()
+    
+    img=BytesIO()
+    plt.savefig(img,format='png',dpi=200)
+    img.seek(0)
+    return send_file(img,mimetype='image/png')
+
+@app.route('/svmplot')
+def route512():
+    plt.scatter(pca_table[:, 0], pca_table[:, 1], c='blue', label='Normal')
+
+    plt.scatter(a_svm[:, 0], a_svm[:, 1], c='red', label='Anomaly')
+
+    plt.title("Anomaly Detection with One-Class SVM and PCA")
+    plt.xlabel("Principal Component 1")
+    plt.ylabel("Principal Component 2")
+    plt.legend()
+    
+    img=BytesIO()
+    plt.savefig(img,format='png',dpi=200)
+    img.seek(0)
+    return send_file(img,mimetype='image/png')
+
+@app.route('/table')
+def route52():
+
+    result1=ar_if.to_html()
+    result2=ar_svm.to_html()
+
+    template = '''
+    <html>
+        <body>
+            <h1>Table</h1>
+            <h2>Isolation Forests</h2>
+            {{result1 | safe}}
+            <h2>OneClassSVM</h2>
+            {{result2 | safe}}
+            <p><a href="/">Back</a></p>
+        </body>
+    </html>
+    '''
+
+    return render_template_string(template, result1=result1, result2=result2)
 
 if __name__ == '__main__':
+    print('start')
     app.run()
