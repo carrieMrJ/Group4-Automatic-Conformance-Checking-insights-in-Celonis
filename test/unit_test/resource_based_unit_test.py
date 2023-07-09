@@ -3,7 +3,7 @@ import pandas as pd
 from unittest.mock import patch
 from io import StringIO
 from src.data_integration.get_data import get_unique_activity, get_unique_resource
-from src.resource_based.resource_performance import batch_identification
+from src.resource_based.batch_identification import batch_identification
 from src.resource_based.find_high_rework_resources_analysis import find_high_rework_resources
 from src.resource_based.find_deviations_analysis import find_deviations
 
@@ -42,52 +42,15 @@ class ResourceBasedTestCase(unittest.TestCase):
                                       "2023-01-01 11:10:00", "2023-01-01 11:20:00"])
         })
 
-        d = batch_identification(example, get_unique_activity(example, "activity"))
-        print(d)
-        key1 = ('A', 'X')
-        correct_sim_A_X = pd.DataFrame({"case_id": [1, 3],
-                                        "activity": ["A", "A"],
-                                        "resource": ["X", "X"],
-                                        "start_at": pd.to_datetime(["2023-01-01 10:00:00", "2023-01-01 10:00:00"]),
-                                        "end_at": pd.to_datetime(["2023-01-01 10:10:00", "2023-01-01 10:10:00"])})
+        df_sim, df_seq, df_con = batch_identification(example, get_unique_activity(example, "activity"))
+        df_sim_expected = pd.DataFrame(['X', 'Y'], columns=['Simultaneous'])
+        df_seq_expected = pd.DataFrame(['X', 'Y'], columns=['Sequential'])
+        df_con_expected = pd.DataFrame(['X'], columns=['Concurrent'])
+        
+        pd.testing.assert_frame_equal(df_sim.reset_index(drop=True), df_sim_expected.reset_index(drop=True))
+        pd.testing.assert_frame_equal(df_seq.reset_index(drop=True), df_seq_expected.reset_index(drop=True))
+        pd.testing.assert_frame_equal(df_con.reset_index(drop=True), df_con_expected.reset_index(drop=True))
 
-        for idx, rows in correct_sim_A_X.iterrows():
-            self.assertIn(rows["case_id"], list(d[key1]["Simultaneous"]["case_id"]))
-
-        correct_seq_A_X = pd.DataFrame({"case_id": [1, 3, 5],
-                                        "activity": ["A", "A", "A"],
-                                        "resource": ["X", "X", "X"],
-                                        "start_at": pd.to_datetime(
-                                            ["2023-01-01 10:00:00", "2023-01-01 10:00:00", "2023-01-01 10:10:00"]),
-                                        "end_at": pd.to_datetime(
-                                            ["2023-01-01 10:10:00", "2023-01-01 10:10:00", "2023-01-01 11:10:00"])})
-        for idx, rows in correct_seq_A_X.iterrows():
-            self.assertIn(rows["case_id"], list(d[key1]["Sequential"]["case_id"]))
-
-        correct_con_A_X = pd.DataFrame({"case_id": [7, 5],
-                                        "activity": ["A", "A"],
-                                        "resource": ["X", "X"],
-                                        "start_at": pd.to_datetime(["2023-01-01 11:00:00", "2023-01-01 11:10:00", ]),
-                                        "end_at": pd.to_datetime(["2023-01-01 10:10:00", "2023-01-01 10:10:00"])})
-        for idx, rows in correct_con_A_X.iterrows():
-            self.assertIn(rows["case_id"], list(d[key1]["Concurrent"]["case_id"]))
-
-        key2 = ('B', 'Y')
-        correct_sim_B_Y = pd.DataFrame({"case_id": [6, 8],
-                                        "activity": ["B", "B"],
-                                        "resource": ["Y", "Y"],
-                                        "start_at": pd.to_datetime(["2023-01-01 11:05:00", "2023-01-01 11:20:00", ]),
-                                        "end_at": pd.to_datetime(["2023-01-01 11:05:00", "2023-01-01 11:20:00"])})
-        for idx, rows in correct_sim_B_Y.iterrows():
-            self.assertIn(rows["case_id"], list(d[key2]["Simultaneous"]["case_id"]))
-
-        correct_seq_B_Y = pd.DataFrame({"case_id": [2, 4],
-                                        "activity": ["B", "B"],
-                                        "resource": ["Y", "Y"],
-                                        "start_at": pd.to_datetime(["2023-01-01 09:05:00", "2023-01-01 09:20:00", ]),
-                                        "end_at": pd.to_datetime(["2023-01-01 09:20:00", "2023-01-01 10:20:00"])})
-        for idx, rows in correct_seq_B_Y.iterrows():
-            self.assertIn(rows["case_id"], list(d[key2]["Sequential"]["case_id"]))
 
     def test_find_deviations(self):
         example = pd.DataFrame({
@@ -95,9 +58,15 @@ class ResourceBasedTestCase(unittest.TestCase):
         'activity': ['A', 'B', 'C', 'A', 'B', 'C', 'A', 'B', 'C', 'A', 'B', 'D'],
         'resource': ['res1', 'res1', 'res1', 'res2', 'res2', 'res2', 'res3', 'res3', 'res3', 'res1', 'res1', 'res1']
         })
-        with patch('sys.stdout', new=StringIO()) as fake_out:
-            find_deviations(example, 1)
-        self.assertIn('Deviation found: Resource res1 performed unusual activity C in case case1', fake_out.getvalue())
+        
+        expected_output = pd.DataFrame({
+        "resource": ['res1', 'res2', 'res2', 'res2', 'res3', 'res3', 'res3', 'res1'],
+        "unusual_activity": ['C', 'A', 'B', 'C', 'A', 'B', 'C', 'D'],
+        "case": ['case1', 'case2', 'case2', 'case2', 'case3', 'case3', 'case3', 'case4']
+        })
+        
+        real_output = find_deviations(example, 1)
+        pd.testing.assert_frame_equal(real_output, expected_output)
         
 
     def test_find_high_rework_resources(self):
