@@ -64,7 +64,7 @@ class TemporalProfileTestCase(unittest.TestCase):
                     'min_temporal_distance(min)': [0],
                     'mean_temporal_distance(min)': [3],
                     'stdev_temporal_distance(min)': [0.5],
-                    'var_temporal_distance': [0.25]
+                    'var_temporal_distance(min)': [0.25]
                     }
         df_tdis = pd.DataFrame(raw_tdis)
 
