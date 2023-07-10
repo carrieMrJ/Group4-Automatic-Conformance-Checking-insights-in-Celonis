@@ -22,10 +22,10 @@ def get_z_score(task_duration, time_distance, temp_profile_dur, temp_profile_dis
     """
     get_z_score
         Args:
-            task_duration: A dataframe which contains case_id, activity, task_duration. Return value of a function 'get_task_duration_time_distance'.
-            time_distance: A dataframe which contains case_id, activity, time_distance. Return value of a function 'get_task_duration_time_distance'.
-            temp_profile_dur: A dataframe which contains max, min, mean, stdev, var of a task durations. Return value of a function 'calculate_temporal_profile'.
-            temp_profile_dis: A dataframe which contains max, min, mean, stdev, var of a time_distances. Return value of a function 'calculate_temporal_profile'.
+            task_duration: A dataframe which contains case_id, activity, task_duration. Return value of a function 'calculate_temporal_profile_task_duration'.
+            time_distance: A dataframe which contains case_id, activity, temporal_distance. Return value of a function 'calculate_temporal_profile_temporal_distance'.
+            temp_profile_dur: A dataframe which contains max, min, mean, stdev, var of a task durations. Return value of a function 'calculate_temporal_profile_task_duration'.
+            temp_profile_dis: A dataframe which contains max, min, mean, stdev, var of a time_distances. Return value of a function 'calculate_temporal_profile_temporal_distance'.
             k: An integer which determines the threshold of a z-score.
         Returns:
             normal_dur: A list with task durations which are not anomaly.
@@ -44,7 +44,7 @@ def get_z_score(task_duration, time_distance, temp_profile_dur, temp_profile_dis
         for index, line in task_duration.iterrows():
 
             x = line['task_duration(min)']
-            y = temp_profile_dur.loc[temp_profile_dur['Activity'] == line['Activity']]
+            y = temp_profile_dur.loc[temp_profile_dur['Activity'] == line['activity']]
             if not y.empty:
                 if z_score(x, y['mean_task_duration(min)'].values[0], y['stdev_task_duration(min)'].values[0]) > k:
                     anomaly_dur.append(line)
@@ -57,13 +57,13 @@ def get_z_score(task_duration, time_distance, temp_profile_dur, temp_profile_dis
     if time_distance is not None and temp_profile_dis is not None:
         for index, line in time_distance.iterrows():
 
-            x = line['time_distance(min)']
-            start = line['Start_Activity']
-            end = line['End_Activity']
+            x = line['temporal_distance(min)']
+            start = line['start_activity']
+            end = line['end_activity']
             y = temp_profile_dis.loc[
                 (temp_profile_dis['Start_Activity'] == start) & (temp_profile_dis['End_Activity'] == end)]
             if not y.empty:
-                if z_score(x, y['mean_time_distance(min)'].values[0], y['stdev_time_distance(min)'].values[0]) > k:
+                if z_score(x, y['mean_temporal_distance(min)'].values[0], y['stdev_temporal_distance(min)'].values[0]) > k:
                     anomaly_dis.append(line)
                 else:
                     normal_dis.append(line)
