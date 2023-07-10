@@ -37,15 +37,15 @@ class TemporalProfileTestCase(unittest.TestCase):
         self.assertListEqual(rest_id, [2, 3, 4, 5, 6, 7, 8])
     def test_get_z_score(self):
         raw_dur = {'case_id': ['t1'],
-                   'Activity': ['A'],
+                   'activity': ['A'],
                    'task_duration(min)': [19]
                    }
         df_dur = pd.DataFrame(raw_dur)
 
         raw_dis = {'case_id': ['t1'],
-                   'Start_Activity': ['A'],
-                   'End_Activity': ['B'],
-                   'time_distance(min)': [10]
+                   'start_activity': ['A'],
+                   'end_activity': ['B'],
+                   'temporal_distance(min)': [10]
                    }
         df_dis = pd.DataFrame(raw_dis)
 
@@ -60,11 +60,11 @@ class TemporalProfileTestCase(unittest.TestCase):
 
         raw_tdis = {'Start_Activity': ['A'],
                     'End_Activity': ['B'],
-                    'max_time_distance(min)': [500],
-                    'min_time_distance(min)': [0],
-                    'mean_time_distance(min)': [3],
-                    'stdev_time_distance(min)': [0.5],
-                    'var_time_distance': [0.25]
+                    'max_temporal_distance(min)': [500],
+                    'min_temporal_distance(min)': [0],
+                    'mean_temporal_distance(min)': [3],
+                    'stdev_temporal_distance(min)': [0.5],
+                    'var_temporal_distance(min)': [0.25]
                     }
         df_tdis = pd.DataFrame(raw_tdis)
 
