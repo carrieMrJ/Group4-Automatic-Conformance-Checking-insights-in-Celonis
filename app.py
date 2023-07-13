@@ -12,6 +12,8 @@ from run_tp_dc import get_variants_info, get_standard_behavior, temporal_profile
     declarative_constraint_analysis, anomaly_detection, anomaly_tables, preprocessing_table
 from src.declarative_constraints.constraint_operations import CONSTRAINT_LIBRARY
 from flask import Flask, render_template_string, send_file, request, redirect, render_template, url_for
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from io import BytesIO
 from run_resource_based import resource_based_overall
@@ -19,9 +21,7 @@ from src.resource_based.batch_identification import batch_identification
 from src.resource_based.find_deviations_analysis import find_deviations
 from src.resource_based.find_high_rework_resources_analysis import find_high_rework_resources
 from src.resource_based.resource_performance import resource_performance
-import matplotlib
 
-matplotlib.use("TkAgg")
 
 TABLE_NAME = None
 CELONIS = None
@@ -587,10 +587,11 @@ def route51():
 
 @app.route('/isolationplot')
 def route511():
-
-    pca_table = pca(PRE_ANOMALY)
+    df_r = anomaly_detection(DATA_MODEL, TABLE_NAME, CASE_COLUMN_NAME, ACT_COLUMN_NAME, RES_COLUMN_NAME,
+                             TIME_COLUMN_NAME)
+    pre, pca_table, a_if, ar_if, a_svm, ar_svm = anomaly_tables(TABLE_NAME, df_r)
     plt.scatter(pca_table[:, 0], pca_table[:, 1], c='blue', label='Normal')
-    a_if, ar_if = isolation_forests(pca_table, DF_ANOMALY)
+    a_if, ar_if = isolation_forests(pca_table, df_r)
     plt.scatter(a_if[:, 0], a_if[:, 1], c='red', label='Anomaly')
 
     plt.title("Anomaly Detection with Isolation Forest and PCA")
