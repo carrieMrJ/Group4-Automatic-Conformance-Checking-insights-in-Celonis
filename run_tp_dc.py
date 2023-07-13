@@ -100,6 +100,14 @@ def anomaly_detection(data_model, table_name, case_column_name, act_column_name,
     return df
 
 
+def preprocessing_table(table_name, df):
+    if table_name == 'reviewing':
+        pre = preprocessing_review(df)
+    if table_name == 'receipt':
+        pre = preprocessing_receipt(df)
+    return pre
+
+
 def anomaly_tables(table_name, df):
     if table_name == 'reviewing':
         pre = preprocessing_review(df)
