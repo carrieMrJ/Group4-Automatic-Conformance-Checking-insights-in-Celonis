@@ -1,10 +1,12 @@
 # Group4-Automatic-Conformance-Checking-insights-in-Celonis
 ## Docker Set-up
 Build docker image  
-`docker build -t .Dockerfile`   
+`docker image build -t [IMAGE] .`   
 Run your docker  
-`docker-compose up`  
-After doing this you will get all the necessary packages installed
+`docker run -p 5000:5000 -d [IMAGE]`  
+After doing this you will get all the necessary packages installed  
+Then Access the service on the specified port (i.e. 5000).
+In any browser, type `http://127.0.0.1:5000` or `localhost:5000`
 
 ## Project Structure
 **Home**
@@ -55,10 +57,11 @@ After doing this you will get all the necessary packages installed
 |--run_tp_dc.py                         : The temporal profile and declarative constrains components to be called in app.py  
 
 ## How to Run the Project
-
-After executing it, input the table name: reviewing 
-
+Using docker:   
+After starting a container service
+Then Access the service on the specified port (i.e. 5000)
+In any browser, type `http://127.0.0.1:5000` or `localhost:5000`  
+Using Terminal:
 ```python
 python app.py
-
 ```
