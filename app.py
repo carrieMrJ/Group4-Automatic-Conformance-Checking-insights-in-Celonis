@@ -730,10 +730,11 @@ def route511():
     plt.xlabel("Principal Component 1")
     plt.ylabel("Principal Component 2")
     plt.legend()
-    plt.show()
+
     img = BytesIO()
     plt.savefig(img, format='png', dpi=200)
     img.seek(0)
+    plt.close()
     return send_file(img, mimetype='image/png')
 
 
@@ -747,10 +748,11 @@ def route512():
     plt.xlabel("Principal Component 1")
     plt.ylabel("Principal Component 2")
     plt.legend()
-    plt.show()
+
     img = BytesIO()
     plt.savefig(img, format='png', dpi=200)
     img.seek(0)
+    plt.close()
     return send_file(img, mimetype='image/png')
 
 
