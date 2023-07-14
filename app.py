@@ -253,6 +253,10 @@ def route1():
     if request.method == "POST":
         bt = request.values.get("submit_standard")
         if bt == "SUBMIT":
+            print(request.form.get("standard"))
+            if request.form.get("standard") == "":
+                return render_template_string(template, result=result,
+                                              message=f"Empty Value!")
             first_threshold_new = float(request.form.get("standard"))
             if 0 < first_threshold_new <= 1:
                 first_p, first_p_id, rest, rest_id = split_df(trace_with_counts, first_threshold_new)
@@ -332,6 +336,8 @@ def route22():
     deviations = find_deviations(df, threshold=threshold)
     result = deviations.to_html()
     if request.method == "POST":
+        if request.form.get("frequency") == "":
+            return render_template_string(template, result=result, message=f"Empty Value!")
         bt = request.values.get("submit_frequency")
         if bt == "SUBMIT":
             threshold_new = int(request.form.get("frequency"))
@@ -377,6 +383,8 @@ def route23():
     if request.method == "POST":
         bt = request.values.get("submit_act")
         if bt == "SUBMIT":
+            if request.form.get("act") == "":
+                return render_template_string(template, result=result, message=f"Invalid!")
             count_threshold_new = int(request.form.get("act"))
             if count_threshold_new < 1:
                 return render_template_string(template, result=result, message=f"Invalid Value!")
@@ -597,6 +605,9 @@ def route3():
     if request.method == "POST":
         bt = request.values.get("submit_z_t")
         if bt == "SUBMIT":
+            if request.form.get("z_t") == "":
+                return render_template_string(template, result1=result1, result2=result2, result3=result3,
+                                              result4=result4, message=f"Invalid!")
             z_threshold_new = float(request.form.get("z_t"))
             normal_dur, anomaly_dur, normal_dis, anomaly_dis = temporal_profile_deviations(new_task_dur, new_time_dis,
                                                                                            temporal_profile_task_dur_main,
@@ -648,7 +659,11 @@ def route4():
     if request.method == "POST":
         bt = request.values.get("submit_poi")
         if bt == "SUBMIT":
+            if request.form.get("poi") == "":
+                return render_template_string(template, result=result,
+                                              message=f"Invalid. Please choose a proper value in [0, 1]")
             poi_new = float(request.form.get("poi"))
+
             if 0 <= poi_new <= 1:
                 constraints_extracted = declarative_constraint_analysis(DATA_MODEL, TABLE_NAME, ACT_COLUMN_NAME,
                                                                         list(CONSTRAINT_LIBRARY.keys()),
@@ -769,4 +784,4 @@ def route52():
 
 if __name__ == '__main__':
     print('start')
-    app.run()
+    app.run(host='0.0.0.0')
